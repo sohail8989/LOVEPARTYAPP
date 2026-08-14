@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOVER PARTY APP</title>
+    <style>
+        body {
+            background-color: #0f0c29;
+            color: white;
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        #logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #logo-container img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid #ff416c;
+            box-shadow: 0 0 15px #ff416c;
+            object-fit: cover;
+        }
+        #auth-container {
+            background: #1a1532;
+            padding: 25px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        input {
+            width: 90%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #2b234d;
+            background: #15102b;
+            color: white;
+            font-size: 14px;
+        }
+        input:focus {
+            outline: none;
+            border-color: #ff416c;
+        }
+        button {
+            width: 93%;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border: none;
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 15px;
+        }
+        button:active {
+            opacity: 0.9;
+        }
+        #error-message {
+            color: #ff4b2b;
+            font-size: 13px;
+            margin-top: 10px;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="logo-container">
+        <img src="icon.png" alt="Lover Party Logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/149/149071.png'">
+        <h1>LOVER PARTY APP</h1>
+    </div>
+
+    <div id="auth-container">
+        <input type="email" id="email" placeholder="Enter Email" value="03356677859@gmail.com" required>
+        <input type="password" id="password" placeholder="Enter Password" value="hammad9999" required>
+        <button id="login-btn" type="button">Login</button>
+        <button id="signup-btn" type="button">Sign Up</button>
+        <p id="error-message"></p>
+    </div>
+
+    <!-- Firebase SDKs (Compat Version - No Module Errors) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Real Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyDsEDoAGFNF-CQknP25rhWP_RoxtvgeCjc",
+            authDomain: "loverpartyapp.firebaseapp.com",
+            databaseURL: "https://loverpartyapp-default-rtdb.firebaseio.com",
+            projectId: "loverpartyapp",
+            storageBucket: "loverpartyapp.firebasestorage.app",
+            messagingSenderId: "1064077187047",
+            appId: "1:1064077187047:web:24f05ce5328a31a9f34f42",
+            measurementId: "G-K7BV8V510W"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        const emailInput = document.getElementById("email");
+        const passwordInput = document.getElementById("password");
+        const errorDisplay = document.getElementById("error-message");
+
+        // Login Click Handler
+        document.getElementById("login-btn").onclick = async function() {
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if (!email || !password) {
+                errorDisplay.textContent = "Please enter email and password.";
+                return;
+            }
+
+            errorDisplay.textContent = "Logging in...";
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                errorDisplay.textContent = "Success! Redirecting...";
+                window.location.href = "home.html";
+            } catch (error) {
+                errorDisplay.textContent = error.message;
+            }
+        };
+
+        // Signup Click Handler
+        document.getElementById("signup-btn").onclick = async function() {
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if (!email || !password) {
+                errorDisplay.textContent = "Please enter email and password.";
+                return;
+            }
+
+            errorDisplay.textContent = "Creating account...";
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+
+                await db.collection("users").doc(user.uid).set({
+                    email: user.email,
+                    name: "Muhammad Farhan",
+                    coins: 35,
+                    points: 21462,
+                    customId: Math.floor(10000000 + Math.random() * 90000000),
+                    friends: 3,
+                    following: 3,
+                    followers: 236,
+                    visitors: 0,
+                    createdAt: new Date()
+                });
+
+                alert("Account created successfully!");
+                window.location.href = "home.html";
+            } catch (error) {
+                errorDisplay.textContent = error.message;
+            }
+        };
+    </script>
+</body>
+</html>

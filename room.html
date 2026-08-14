@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOVER PARTY APP - Live Audio Rooms</title>
+    <!-- Zego Express Engine Web SDK -->
+    <script src="https://download.zego.im/sdk/zego_express_engine_web_v2.21.0.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body, html { width: 100%; height: 100%; background: linear-gradient(135deg, #0f1020, #1b1c3a); color: white; overflow: hidden; }
+        
+        .app-container { display: flex; flex-direction: column; width: 100%; height: 100%; position: relative; }
+
+        /* Header Bar */
+        .room-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(25, 26, 48, 0.95); border-bottom: 1px solid rgba(255,255,255,0.08); z-index: 10; }
+        .room-info h3 { font-size: 14px; color: #ff3366; }
+        .room-info span { font-size: 11px; color: #00ffcc; }
+        .leave-btn { background: #ff3366; color: white; border: none; padding: 6px 14px; border-radius: 15px; font-weight: 600; font-size: 11px; cursor: pointer; }
+
+        /* Status Banner */
+        .status-banner { text-align: center; background: rgba(0,255,204,0.1); color: #00ffcc; font-size: 10px; padding: 4px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+
+        /* 8-Seat Grid Layout (Zego Style) */
+        .stage-area { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 15px 10px; gap: 15px; overflow-y: auto; }
+        .seats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: 100%; max-width: 400px; justify-items: center; }
+        
+        .seat-item { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; position: relative; }
+        .avatar-circle { width: 56px; height: 56px; border-radius: 50%; background: rgba(255, 255, 255, 0.06); border: 2px dashed rgba(255, 255, 255, 0.25); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        .seat-item.occupied .avatar-circle { border: 2px solid #00ffcc; box-shadow: 0 0 10px rgba(0, 255, 204, 0.4); background: rgba(0, 255, 204, 0.1); }
+        .placeholder-icon { font-size: 20px; }
+        .crown-badge { position: absolute; top: -2px; right: -2px; font-size: 9px; background: #ffcc00; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; z-index: 5; }
+        .seat-name { font-size: 10px; color: #d0d3e0; text-align: center; max-width: 65px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        /* Chat Window */
+        .chat-box { width: 100%; max-width: 400px; height: 90px; background: rgba(0, 0, 0, 0.3); border-radius: 10px; padding: 8px 12px; overflow-y: auto; font-size: 11px; display: flex; flex-direction: column; gap: 4px; border: 1px solid rgba(255,255,255,0.05); }
+        .chat-msg span { color: #ff3366; font-weight: bold; }
+
+        /* Footer Controls */
+        .room-footer { height: 65px; background: rgba(25, 26, 48, 0.99); display: flex; align-items: center; justify-content: space-around; padding: 0 15px; border-top: 1px solid rgba(255,255,255,0.08); z-index: 100; }
+        
+        /* 3D Customized Buttons */
+        .control-btn { 
+            background: linear-gradient(135deg, #2a2c4e, #1f213d); 
+            border: 1px solid rgba(255,255,255,0.2); 
+            color: white; 
+            padding: 10px 18px; 
+            border-radius: 25px; 
+            font-size: 11px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            gap: 5px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+            transition: all 0.2s ease;
+        }
+        .control-btn:active { transform: translateY(2px); box-shadow: 0 2px 6px rgba(0,0,0,0.4); }
+        .gift-action-btn { background: linear-gradient(135deg, #ff3366, #ff9933); border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 4px 15px rgba(255,51,102,0.5), inset 0 1px 0 rgba(255,255,255,0.4); }
+
+        /* Gift Modal Popup */
+        #giftModal { display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(20, 21, 37, 0.99); border-radius: 20px 20px 0 0; padding: 15px; z-index: 1000; border-top: 1px solid rgba(255,255,255,0.2); max-height: 85vh; overflow-y: auto; }
+        
+        .admin-panel { margin-bottom: 12px; background: rgba(0,255,204,0.08); border: 1px dashed #00ffcc; padding: 10px; border-radius: 10px; }
+        
+        /* 3D Tabs */
+        .gift-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+        .tab-btn { flex: 1; background: linear-gradient(135deg, #2a2c4e, #1b1c3a); color: white; border: 1px solid rgba(255,255,255,0.15); padding: 9px; border-radius: 18px; font-size: 11px; font-weight: 700; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.3); }
+        .tab-btn.active { background: linear-gradient(135deg, #ff3366, #cc2952); border-color: rgba(255,255,255,0.3); box-shadow: 0 4px 12px rgba(255,51,102,0.4); }
+
+        .gift-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-height: 200px; overflow-y: auto; padding: 4px; }
+        .gift-card { background: rgba(255,255,255,0.08); border-radius: 10px; padding: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); }
+        .gift-card video, .gift-card img { width: 40px; height: 40px; object-fit: cover; border-radius: 6px; }
+
+        /* Left-to-Right Full Screen Overlay */
+        #giftAnimationOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; display: flex; align-items: center; justify-content: center; z-index: 2000; overflow: hidden; background: rgba(0,0,0,0.85); }
+        .flying-gift-box { display: flex; flex-direction: column; align-items: center; width: 100%; height: 100%; justify-content: center; }
+        .flying-gift-box video { width: 100vw; height: 100vh; object-fit: contain; background: #000; }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Room Header -->
+        <div class="room-header">
+            <div class="room-info">
+                <h3 id="roomTitleDisplay">Lover Beats Party ♫</h3>
+                <span id="roomIDDisplay">ID: lover_room_101</span>
+            </div>
+            <button class="leave-btn" onclick="leaveRoom()">Leave</button>
+        </div>
+
+        <div class="status-banner" id="statusBanner">Zego Voice Room Initialized</div>
+
+        <!-- Stage Area with 8 Seats -->
+        <div class="stage-area">
+            <div class="seats-grid" id="seatsGrid"></div>
+
+            <!-- Chat Container -->
+            <div class="chat-box" id="chatContainer">
+                <div class="chat-msg"><span>System:</span> Welcome to LOVER PARTY APP. Enjoy full screen videos!</div>
+            </div>
+        </div>
+
+        <!-- Footer Controls -->
+        <div class="room-footer">
+            <button class="control-btn" id="micBtn" onclick="toggleMic()">🎤 Mute</button>
+            <button class="control-btn" onclick="sendChatMsg()">💬 Chat</button>
+            <button class="control-btn gift-action-btn" onclick="openGiftModal()">🎁 Gifts</button>
+        </div>
+    </div>
+
+    <!-- Gift Modal Popup -->
+    <div id="giftModal">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <h4 style="font-size:13px; color:#ff9933;">🎁 Room Gift & Effects Store</h4>
+            <button onclick="closeGiftModal()" style="background:none; border:none; color:white; font-size:18px; cursor:pointer;">✕</button>
+        </div>
+
+        <!-- OWNER ONLY GALLERY UPLOADER -->
+        <div class="admin-panel" id="ownerUploadPanel" style="display: none;">
+            <p style="font-size:10px; color:#00ffcc; margin-bottom:4px; font-weight:bold;">👑 OWNER ADMIN: Upload Fullscreen Video Gift</p>
+            <input type="file" id="galleryVideoInput" accept="video/mp4,video/*" style="font-size:10px; color:#fff; margin-bottom:6px; width:100%;">
+            <div style="display:flex; gap:6px; margin-bottom:6px;">
+                <input type="text" id="uploadGiftName" placeholder="Video Gift Name" style="flex:1; padding:5px; font-size:10px; background:rgba(255,255,255,0.1); border:none; color:white; border-radius:4px;">
+                <input type="number" id="uploadGiftPrice" placeholder="Coins" style="width:65px; padding:5px; font-size:10px; background:rgba(255,255,255,0.1); border:none; color:white; border-radius:4px;">
+            </div>
+            <button onclick="uploadRealVideoGift()" style="background:linear-gradient(135deg, #00ffcc, #00997a); color:#000; border:none; width:100%; padding:8px; font-size:11px; font-weight:bold; border-radius:6px; cursor:pointer; box-shadow: 0 3px 8px rgba(0,255,204,0.3);">Direct Upload to Customized</button>
+        </div>
+
+        <!-- 3 Category Buttons -->
+        <div class="gift-tabs">
+            <button class="tab-btn active" id="tab-btn-normal" onclick="switchGiftTab('normal')">🎁 GIFT</button>
+            <button class="tab-btn" id="tab-btn-customized" onclick="switchGiftTab('customized')">✨ CUSTOMIZED</button>
+            <button class="tab-btn" id="tab-btn-vip" onclick="switchGiftTab('vip')">👑 VIP GIFT</button>
+        </div>
+
+        <!-- Scrollable Gift Container -->
+        <div class="gift-grid" id="giftItemsContainer"></div>
+    </div>
+
+    <!-- Fullscreen Left-to-Right Overlay -->
+    <div id="giftAnimationOverlay" style="display:none;"></div>
+    <audio id="remoteAudio" autoplay></audio>
+
+    <script>
+        const appID = 2003193497;
+        const server = "wss://webliveroom" + appID + "-i.zegoexpress.im/ws";
+        let zg = null;
+        let localStream = null;
+        let isMuted = false;
+        const userID = 'user_' + Math.floor(Math.random() * 100000);
+        const userName = 'Muhammad Farhan'; // Your owner profile name
+
+        let seatsData = {
+            1: { user: 'Muhammad Farhan' },
+            2: null, 3: null, 4: null, 
+            5: null, 6: null, 7: null, 8: null
+        };
+
+        let giftDatabase = JSON.parse(localStorage.getItem('lover_party_real_videos')) || {
+            normal: [
+                { name: "Rose Shower", price: 10, src: "https://www.w3schools.com/html/mov_bbb.mp4", type: "video" }
+            ],
+            customized: [],
+            vip: [
+                { name: "Sports Car", price: 500, src: "https://www.w3schools.com/html/mov_bbb.mp4", type: "video" }
+            ]
+        };
+
+        function saveGifts() {
+            localStorage.setItem('lover_party_real_videos', JSON.stringify(giftDatabase));
+        }
+
+        // Check if current user is Owner to show uploader panel
+        function checkOwnerAccess() {
+            const panel = document.getElementById('ownerUploadPanel');
+            if (userName === 'Muhammad Farhan') {
+                panel.style.display = 'block';
+            } else {
+                panel.style.display = 'none';
+            }
+        }
+
+        function renderSeats() {
+            const grid = document.getElementById('seatsGrid');
+            grid.innerHTML = '';
+            for (let i = 1; i <= 8; i++) {
+                let data = seatsData[i];
+                let isOccupied = data !== null;
+                let div = document.createElement('div');
+                div.className = `seat-item ${isOccupied ? 'occupied' : ''}`;
+                div.onclick = () => takeSeat(i);
+                
+                div.innerHTML = `
+                    <div class="avatar-circle">
+                        ${i === 1 ? '<div class="crown-badge">👑</div>' : ''}
+                        <span class="placeholder-icon">${isOccupied ? '😊' : '🎙️'}</span>
+                    </div>
+                    <span class="seat-name">${isOccupied ? data.user : (i === 1 ? 'Farhan' : 'Seat ' + i)}</span>
+                `;
+                grid.appendChild(div);
+            }
+        }
+
+        function takeSeat(seatNum) {
+            for (let s in seatsData) {
+                if (seatsData[s] && seatsData[s].user === userName) seatsData[s] = null;
+            }
+            seatsData[seatNum] = { user: userName };
+            renderSeats();
+            addChatLog("System", `You moved to Seat ${seatNum}`);
+        }
+
+        // LEFT-TO-RIGHT FULLSCREEN VIDEO PLAYBACK WITH SOUND
+        function playGiftEffect(item) {
+            const overlay = document.getElementById('giftAnimationOverlay');
+            overlay.style.display = 'flex';
+            overlay.innerHTML = '';
+
+            const box = document.createElement('div');
+            box.className = 'flying-gift-box';
+            
+            const vid = document.createElement('video');
+            vid.src = item.src;
+            vid.autoplay = true;
+            vid.controls = false;
+            vid.playsInline = true;
+
+            const label = document.createElement('div');
+            label.style.cssText = "position:absolute; bottom:40px; width:100%; text-align:center; font-size:14px; color:#ffcc00; font-weight:bold; text-shadow: 0 2px 4px rgba(0,0,0,0.8); z-index:2001;";
+            label.innerText = `🎁 ${userName} sent ${item.name}!`;
+
+            box.appendChild(vid);
+            overlay.appendChild(box);
+            overlay.appendChild(label);
+
+            vid.play().catch(e => console.log("Audio play error:", e));
+
+            // Remove overlay when full video ends
+            vid.onended = () => {
+                overlay.style.display = 'none';
+                overlay.innerHTML = '';
+            };
+
+            // Safety fallback timer
+            setTimeout(() => {
+                if (overlay.style.display === 'flex') {
+                    overlay.style.display = 'none';
+                    overlay.innerHTML = '';
+                }
+            }, (vid.duration ? vid.duration * 1000 : 30000));
+        }
+
+        function uploadRealVideoGift() {
+            if (userName !== 'Muhammad Farhan') {
+                alert("Only Owner can upload gifts!");
+                return;
+            }
+
+            const fileInput = document.getElementById('galleryVideoInput');
+            const nameInput = document.getElementById('uploadGiftName').value;
+            const priceInput = document.getElementById('uploadGiftPrice').value;
+
+            if (fileInput.files.length === 0 || !nameInput || !priceInput) {
+                alert("Please select a video file, enter name and price!");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const videoBase64 = e.target.result;
+                giftDatabase.customized.push({
+                    name: nameInput,
+                    price: parseInt(priceInput),
+                    src: videoBase64,
+                    type: "video"
+                });
+
+                saveGifts();
+                alert("Fullscreen video gift uploaded successfully!");
+                
+                fileInput.value = '';
+                document.getElementById('uploadGiftName').value = '';
+                document.getElementById('uploadGiftPrice').value = '';
+                switchGiftTab('customized');
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+        function openGiftModal() {
+            checkOwnerAccess();
+            document.getElementById('giftModal').style.display = 'block';
+            switchGiftTab('customized');
+        }
+
+        function closeGiftModal() {
+            document.getElementById('giftModal').style.display = 'none';
+        }
+
+        function switchGiftTab(cat) {
+            ['normal', 'customized', 'vip'].forEach(c => {
+                document.getElementById('tab-btn-' + c).classList.remove('active');
+            });
+            document.getElementById('tab-btn-' + cat).classList.add('active');
+
+            const container = document.getElementById('giftItemsContainer');
+            container.innerHTML = '';
+
+            let items = giftDatabase[cat];
+            if (!items || items.length === 0) {
+                container.innerHTML = '<div style="grid-column: span 4; text-align:center; font-size:11px; color:#aaa; padding:20px;">No gifts here.</div>';
+                return;
+            }
+
+            items.forEach(item => {
+                let card = document.createElement('div');
+                card.className = 'gift-card';
+                card.innerHTML = `
+                    <video src="${item.src}" muted playsinline></video>
+                    <span style="font-size:9px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%; text-align:center;">${item.name}</span>
+                    <span style="font-size:8px; color:#ff9933;">🪙 ${item.price}</span>
+                `;
+                card.onclick = () => {
+                    playGiftEffect(item);
+                    addChatLog("Gift 🎁", `${userName} sent ${item.name}!`);
+                    closeGiftModal();
+                };
+                container.appendChild(card);
+            });
+        }
+
+        async function initZegoLiveRoom() {
+            try {
+                zg = new ZegoExpressEngine(appID, server);
+                await zg.loginRoom('lover_room_101', "", { userID: userID, userName: userName }, { userUpdate: true });
+                localStream = await zg.createStream({ camera: { audio: true, video: false } });
+                await zg.startPublishingStream('stream_' + userID, localStream);
+                document.getElementById('statusBanner').innerText = "Zego Voice Connected";
+            } catch (err) {
+                document.getElementById('statusBanner').innerText = "Interactive Room Ready";
+            }
+        }
+
+        function toggleMic() {
+            isMuted = !isMuted;
+            if (localStream && zg) {
+                try { zg.mutePublishStreamAudio(localStream, isMuted); } catch(e){}
+            }
+            const btn = document.getElementById('micBtn');
+            btn.innerHTML = isMuted ? "🔇 Unmuted" : "🎤 Mute";
+            btn.style.background = isMuted ? "linear-gradient(135deg, #ff3366, #cc2952)" : "linear-gradient(135deg, #2a2c4e, #1f213d)";
+        }
+
+        function sendChatMsg() {
+            let msg = prompt("Enter chat message:");
+            if (msg) addChatLog(userName, msg);
+        }
+
+        function addChatLog(sender, text) {
+            const container = document.getElementById('chatContainer');
+            const div = document.createElement('div');
+            div.className = 'chat-msg';
+            div.innerHTML = `<span>${sender}:</span> ${text}`;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function leaveRoom() {
+            if (zg) { try { zg.logoutRoom('lover_room_101'); } catch(e){} }
+            alert("Left room.");
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderSeats();
+            checkOwnerAccess();
+            initZegoLiveRoom();
+        });
+    </script>
+</body>
+</html>

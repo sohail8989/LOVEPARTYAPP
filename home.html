@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOVER PARTY APP - Home</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #0d0b21;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-bottom: 70px;
+            overflow-x: hidden;
+        }
+
+        .top-tabs {
+            display: flex;
+            background: #151238;
+            padding: 0 10px;
+            border-bottom: 1px solid #2a265f;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        .top-tabs::-webkit-scrollbar { display: none; }
+        .top-tab-item {
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #a09cb0;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+        .top-tab-item.active {
+            color: #ff3366;
+            border-bottom-color: #ff3366;
+            font-weight: bold;
+        }
+
+        .filter-scroll-container {
+            display: flex;
+            gap: 8px;
+            padding: 10px 15px;
+            overflow-x: auto;
+            white-space: nowrap;
+            background: #0d0b21;
+        }
+        .filter-scroll-container::-webkit-scrollbar { display: none; }
+        .filter-pill {
+            background: #1a1744;
+            border: 1px solid #2a265f;
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .filter-pill.active {
+            background: linear-gradient(135deg, #ff3366, #ff6b8b);
+            border-color: #ff3366;
+            font-weight: bold;
+        }
+
+        .flags-scroll-container {
+            display: flex;
+            gap: 8px;
+            padding: 0 15px 10px 15px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        .flags-scroll-container::-webkit-scrollbar { display: none; }
+        .flag-pill {
+            background: #151238;
+            border: 1px solid #2a265f;
+            color: #d0cbdc;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-shrink: 0;
+        }
+
+        .banner-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding: 0 15px 15px 15px;
+        }
+        .banner-card {
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .banner-honor { background: linear-gradient(135deg, #ffd700, #ffaa00); color: #1a1744; }
+        .banner-activity { background: linear-gradient(135deg, #3399ff, #66b3ff); color: #fff; }
+
+        .section-header {
+            padding: 0 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .section-header h3 { font-size: 14px; color: #a09cb0; }
+        .create-room-btn {
+            background: linear-gradient(135deg, #ff3366, #ff6b8b);
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(255, 51, 102, 0.4);
+        }
+
+        /* Rooms Grid Style with Picture */
+        .rooms-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 0 15px;
+        }
+        .room-card {
+            background: #1a1744;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 1px solid #2a265f;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 150px;
+            position: relative;
+        }
+        .room-card-img {
+            width: 100%;
+            height: 75px;
+            object-fit: cover;
+            background: #25215c;
+        }
+        .room-card-info {
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex: 1;
+        }
+        .room-card h4 {
+            font-size: 13px;
+            color: #fff;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .room-tag {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #ff3366;
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        /* Create Modal */
+        #create-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-box {
+            background: #151238;
+            padding: 20px;
+            border-radius: 15px;
+            width: 85%;
+            max-width: 320px;
+            border: 1px solid #2a265f;
+        }
+        .modal-box h3 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: #ff3366;
+        }
+        .modal-box input, .modal-box select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: #0d0b21;
+            border: 1px solid #2a265f;
+            border-radius: 8px;
+            color: white;
+            font-size: 13px;
+        }
+        .file-label {
+            display: block;
+            font-size: 11px;
+            color: #a09cb0;
+            margin-bottom: 4px;
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .modal-actions button {
+            padding: 7px 14px;
+            border-radius: 6px;
+            border: none;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .btn-cancel { background: #2a265f; color: white; }
+        .btn-create { background: #ff3366; color: white; }
+
+        /* Bottom Navigation Bar */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0; left: 0; width: 100%;
+            background: #151238;
+            border-top: 1px solid #2a265f;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 500;
+        }
+        .nav-item {
+            text-align: center;
+            color: #a09cb0;
+            text-decoration: none;
+            font-size: 10px;
+            cursor: pointer;
+        }
+        .nav-item.active { color: #ff3366; }
+        .nav-item div { font-size: 16px; margin-bottom: 2px; }
+    </style>
+</head>
+<body>
+
+    <div class="top-tabs">
+        <div class="top-tab-item">Following</div>
+        <div class="top-tab-item active">Explore</div>
+        <div class="top-tab-item">New</div>
+        <div class="top-tab-item">Nearby</div>
+    </div>
+
+    <div class="filter-scroll-container">
+        <div class="filter-pill active">Popular</div>
+        <div class="filter-pill">PK Pakistan</div>
+        <div class="filter-pill">PH Philippines</div>
+        <div class="filter-pill">Gaming</div>
+        <div class="filter-pill">Music</div>
+    </div>
+
+    <div class="flags-scroll-container">
+        <div class="flag-pill">🌐 All</div>
+        <div class="flag-pill">🇵🇰 Pakistan</div>
+        <div class="flag-pill">🇵🇭 Philippines</div>
+        <div class="flag-pill">🇮🇳 India</div>
+        <div class="flag-pill">🇸🇦 Saudi Arabia</div>
+        <div class="flag-pill">🇦🇪 UAE</div>
+        <div class="flag-pill">🇺🇸 USA</div>
+    </div>
+
+    <div class="banner-container">
+        <div class="banner-card banner-honor" onclick="alert('Honor Leaderboard coming soon!')">
+            Honor <span>👑</span>
+        </div>
+        <div class="banner-card banner-activity" onclick="alert('Activity Center coming soon!')">
+            Activity Center <span>⭐</span>
+        </div>
+    </div>
+
+    <div class="section-header">
+        <h3>Live Voice Rooms</h3>
+        <button class="create-room-btn" onclick="openModal()">+ Create Room</button>
+    </div>
+
+    <div class="rooms-grid" id="roomsContainer"></div>
+
+    <!-- Create Room Modal with Image Picker -->
+    <div id="create-modal">
+        <div class="modal-box">
+            <h3>Create Voice Room</h3>
+            <input type="text" id="roomTitleInput" placeholder="Enter Room Title...">
+            <label class="file-label">Select Room Picture from Gallery:</label>
+            <input type="file" id="roomImageInput" accept="image/*">
+            <select id="roomCapacityInput">
+                <option value="4">4 Seats</option>
+                <option value="8">8 Seats</option>
+                <option value="12">12 Seats</option>
+                <option value="16" selected>16 Seats</option>
+            </select>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+                <button class="btn-create" onclick="createRoom()">Go Live</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <a href="home.html" class="nav-item active"><div>🏠</div>Home</a>
+        <a href="room.html" class="nav-item"><div>🎙️</div>Rooms</a>
+        <a href="profile.html" class="nav-item"><div>👤</div>Profile</a>
+    </div>
+
+    <script>
+        let activeRooms = JSON.parse(localStorage.getItem('lover_party_rooms')) || [
+            { id: 'room_1', name: 'Lover Beats Party 🎵', seats: 16, image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300' },
+            { id: 'room_2', name: 'Night Vibes & Chill ✨', seats: 16, image: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300' },
+            { id: 'room_3', name: 'Poetry & Shayari 🌙', seats: 8, image: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=300' },
+            { id: 'room_4', name: 'Friendly Gupshup ☕', seats: 12, image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=300' }
+        ];
+
+        function renderRooms() {
+            const container = document.getElementById('roomsContainer');
+            container.innerHTML = '';
+            
+            if(activeRooms.length === 0) {
+                container.innerHTML = '<p style="color: #a09cb0; grid-column: span 2; text-align: center; padding: 20px;">No active rooms right now.</p>';
+                return;
+            }
+
+            activeRooms.forEach(room => {
+                const card = document.createElement('div');
+                card.className = 'room-card';
+                card.onclick = () => {
+                    window.location.href = `room.html?id=${room.id}&name=${encodeURIComponent(room.name)}&seats=${room.seats}&image=${encodeURIComponent(room.image || '')}`;
+                };
+                card.innerHTML = `
+                    <span class="room-tag">${room.seats} Seats</span>
+                    <img src="${room.image || 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300'}" class="room-card-img" alt="Room Banner">
+                    <div class="room-card-info">
+                        <h4>${room.name}</h4>
+                        <p style="font-size:10px; color:#a09cb0;">Tap to Join Live</p>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function openModal() {
+            document.getElementById('create-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('create-modal').style.display = 'none';
+        }
+
+        function createRoom() {
+            const title = document.getElementById('roomTitleInput').value.trim();
+            const seats = document.getElementById('roomCapacityInput').value;
+            const imageInput = document.getElementById('roomImageInput');
+
+            if(!title) {
+                alert('Please enter a room title');
+                return;
+            }
+
+            if(imageInput.files && imageInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    saveAndRedirect(title, seats, e.target.result);
+                };
+                reader.readAsDataURL(imageInput.files[0]);
+            } else {
+                // Default image agar select na ki jaye
+                saveAndRedirect(title, seats, 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300');
+            }
+        }
+
+        function saveAndRedirect(title, seats, imageUrl) {
+            const newRoom = {
+                id: 'room_' + Date.now(),
+                name: title,
+                seats: parseInt(seats),
+                image: imageUrl
+            };
+
+            activeRooms.unshift(newRoom);
+            localStorage.setItem('lover_party_rooms', JSON.stringify(activeRooms));
+            closeModal();
+
+            window.location.href = `room.html?id=${newRoom.id}&name=${encodeURIComponent(newRoom.name)}&seats=${newRoom.seats}&image=${encodeURIComponent(newRoom.image)}`;
+        }
+
+        window.onload = renderRooms;
+    </script>
+</body>
+</html>
