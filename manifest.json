@@ -1,0 +1,13 @@
+{
+  "background_color": "#ec3030",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "LOVER PARTY APP",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "LOVER",
+  "start_url": "/",
+  "theme_color": "#d61c1c",
+  "id": "/?source=pwa",
+  "description": "A real-time voice party and audio chat room application with live interactive features."
+}

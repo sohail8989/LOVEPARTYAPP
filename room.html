@@ -258,16 +258,28 @@
         // Dynamic User & ID creation
         const userID = savedUser.uid || ('user_' + Math.floor(100000 + Math.random() * 900000));
         const userName = savedUser.displayName || savedUser.email?.split('@')[0] || ('User_' + Math.floor(1000 + Math.random() * 9000));
+// URL se Room ID get karna
+const urlParams = new URLSearchParams(window.location.search);
+const roomId = urlParams.get('id') || 'lover_room_101';
+
+// Firebase Database reference for current room seats
+const seatsRef = db.ref(`rooms/${roomId}/seats`);
+
+// Default 8 Seats Structure
 let seatsData = {
-    1: null,
-    2: null,
-    3: null,
-    4: null,
-    5: null,
-    6: null,
-    7: null,
-    8: null
+    1: null, 2: null, 3: null, 4: null, 5: null, 6: null, 7: null, 8: null
 };
+
+// Real-time listener to sync seats from Firebase
+seatsRef.on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+        seatsData = data;
+    } else {
+        seatsRef.set(seatsData);
+    }
+    renderSeats();
+});
         let giftDatabase = JSON.parse(localStorage.getItem('lover_party_real_videos')) || {
             normal: [
                 { name: "Rose Shower", price: 10, src: "https://www.w3schools.com/html/mov_bbb.mp4", type: "video" }
@@ -304,17 +316,21 @@ function renderSeats() {
         div.className = `seat-item ${isOccupied ? 'occupied' : ''} ${isOccupied && seatInfo.speaking && !seatInfo.muted ? 'speaking' : ''}`;
         
         div.onclick = () => {
-            if (!isOccupied) {
-                // Pehle check karein ke user pehle se kisi aur seat par hai toh wahan se uth jaye
-                for (let s = 1; s <= 8; s++) {
-                    if (seatsData[s] && seatsData[s].user === userName) {
-                        seatsData[s] = null;
-                    }
+            for (let s = 1; s <= 8; s++) {
+                if (seatsData[s] && seatsData[s].user === userName) {
+                    seatsData[s] = null;
                 }
-                // Nayi seat par baith jaye
-                seatsData[i] = { user: userName, muted: isMuted, speaking: true, ping: '24ms' };
-                renderSeats();
-            } else if (seatInfo.user === userName || userName === 'Muhammad Farhan' || savedUser.isOwner) {
+            }
+
+            if (!isOccupied) {
+                seatsData[i] = { 
+                    user: userName, 
+                    muted: isMuted, 
+                    speaking: true, 
+                    ping: '24ms' 
+                };
+                seatsRef.set(seatsData);
+            } else if (seatInfo.user === userName || userName === 'Muhammad Farhan') {
                 let action = prompt(`Seat ${i} (${seatInfo.user}): Type 'mute' to toggle mic, or 'leave' to vacate.`);
                 if (action === 'mute') {
                     seatInfo.muted = !seatInfo.muted;
@@ -324,13 +340,12 @@ function renderSeats() {
                         let btn = document.getElementById('micBtn');
                         if(btn) {
                             btn.innerHTML = isMuted ? "🔇 Unmuted" : "🎤 Mute";
-                            btn.style.background = isMuted ? "linear-gradient(135deg, #ff3366, #cc2952)" : "linear-gradient(135deg, #2a2c4e, #1f213d)";
                         }
                     }
-                    renderSeats();
+                    seatsRef.set(seatsData);
                 } else if (action === 'leave') {
                     seatsData[i] = null;
-                    renderSeats();
+                    seatsRef.set(seatsData);
                 }
             }
         };
@@ -579,24 +594,27 @@ card.onclick = () => {
             const modalCoinEl = document.getElementById('modalCoinsDisplay');
             if (modalCoinEl) modalCoinEl.innerText = formattedCoins;
         }
+function sendGiftItem(item) {
+    let currentCoins = BigInt(getOwnerCoins());
+    let giftPrice = BigInt(item.price || 0);
+    
+    // 45% coin cut calculation (BigInt ke sath safe math)
+    let platformCut = (giftPrice * 45n) / 100n;
+    let netDeduction = giftPrice; // User se poori price deduct hogi
 
-        function sendGiftItem(item) {
-            let currentCoins = BigInt(getOwnerCoins());
-            let giftPrice = BigInt(item.price || 0);
+    if (currentCoins < netDeduction) {
+        alert("Insufficient Coin Balance!");
+        return;
+    }
 
-            if (currentCoins < giftPrice) {
-                alert("Insufficient Coin Balance!");
-                return;
-            }
+    let newBalance = currentCoins - netDeduction;
+    localStorage.setItem(COIN_KEY, newBalance.toString());
 
-            let newBalance = currentCoins - giftPrice;
-            localStorage.setItem(COIN_KEY, newBalance.toString());
-
-            syncCoinDisplays();
-            playGiftEffect(item);
-            addChatLog("Gift 🎁", `${userName} sent ${item.name}!`);
-            closeGiftModal();
-        }
+    syncCoinDisplays();
+    playGiftEffect(item);
+    addChatLog("Gift 🎁", `${userName} sent ${item.name}! (Fee: ${platformCut} coins cut)`);
+    closeGiftModal();
+}
 
         function switchGiftTab(cat) {
             ['normal', 'customized', 'vip'].forEach(c => {
@@ -706,6 +724,30 @@ renderSeats();
             showVipRoomEntrance();
         }, 1000);
     });
+    // 1. Token fetch karne ka function
+    async function fetchZegoToken(userID) {
+        // Production ke liye yahan secure backend token API aayegi
+        // Abhi test mode ke liye empty ya test token return karein
+        return ""; 
+    }
+
+    // 2. Zego Room Login with Token
+    async function initZegoWithToken(appID, server, roomId, userID, userName) {
+        try {
+            const zg = new ZegoExpressEngine(appID, server);
+            
+            // Secure token fetch kiya ja raha hai
+            const token = await fetchZegoToken(userID);
+
+            // Login room with token parameter
+            await zg.loginRoom(roomId, token, { userID: userID, userName: userName }, { userUpdate: true });
+            console.log("Zego Logged in securely with Token support!");
+            
+            return zg;
+        } catch (error) {
+            console.error("Zego Login Failed:", error);
+        }
+    }
 
     </script>
 </body>
