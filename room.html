@@ -187,12 +187,13 @@
         // Check if current user is Owner to show uploader panel
         function checkOwnerAccess() {
             const panel = document.getElementById('ownerUploadPanel');
-            if (userName === 'Muhammad Farhan') {
+            if (savedUser.isOwner || userName === 'Muhammad Farhan') {
                 panel.style.display = 'block';
             } else {
                 panel.style.display = 'none';
             }
         }
+
 
         function renderSeats() {
             const grid = document.getElementById('seatsGrid');
