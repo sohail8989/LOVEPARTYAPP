@@ -634,11 +634,20 @@ card.onclick = () => {
         }
 
                 window.addEventListener('DOMContentLoaded', () => {
-            renderSeats();
-            checkOwnerAccess();
-            initZegoLiveRoom();
-            syncCoinDisplays();
-        });
+    renderSeats();
+    checkOwnerAccess();
+    initZegoLiveRoom();
+    syncCoinDisplays();
+    
+    // Security & VIP Entrance Trigger
+    const currentUser = getAuthenticatedUser();
+    console.log("🔒 Secure Session Active:", currentUser.userName, "| Role:", currentUser.role);
+
+    setTimeout(() => {
+        showVipRoomEntrance();
+    }, 1000);
+});
+
     // VIP Entrance Animation Trigger
     function showVipRoomEntrance() {
         let vipLevel = localStorage.getItem('userVipLevel') || 25;
