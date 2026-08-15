@@ -316,6 +316,47 @@
         </div>
     </div>
 </div>
+<!-- Withdrawal Modal -->
+<div id="withdrawCoinsModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:10000; justify-content:center; align-items:center;">
+    <div style="background:#1a1a2e; border:2px solid #ff4757; width:92%; max-width:400px; border-radius:15px; padding:18px; color:#fff; font-family:sans-serif; max-height:92vh; overflow-y:auto;">
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #333; padding-bottom:10px;">
+            <h3 style="margin:0; color:#ff4757; font-size:16px;">💰 Withdraw Coins</h3>
+            <span onclick="document.getElementById('withdrawCoinsModal').style.display='none'" style="cursor:pointer; font-size:20px;">✖</span>
+        </div>
+
+        <label style="font-size:11px; margin-top:10px; display:block;">Coins to Withdraw:</label>
+        <input type="number" id="withdrawAmount" placeholder="Enter Amount" style="width:100%; padding:8px; margin:5px 0 10px; background:#16213e; color:#fff; border:1px solid #ff4757; border-radius:6px; box-sizing:border-box;">
+
+        <label style="font-size:11px;">Select Bank / Wallet:</label>
+        <select id="withdrawMethod" style="width:100%; padding:8px; margin:5px 0 10px; background:#16213e; color:#fff; border:1px solid #ff4757; border-radius:6px;">
+            <option value="Easypaisa">Easypaisa</option>
+            <option value="JazzCash">JazzCash</option>
+            <option value="Meezan Bank">Meezan Bank</option>
+            <option value="HBL">HBL</option>
+            <option value="UBL">UBL</option>
+            <option value="Bank Alfalah">Bank Alfalah</option>
+            <option value="MCB Bank">MCB Bank</option>
+            <option value="Allied Bank">Allied Bank</option>
+            <option value="Askari Bank">Askari Bank</option>
+            <option value="SadaPay">SadaPay</option>
+            <option value="NayaPay">NayaPay</option>
+        </select>
+
+        <label style="font-size:11px;">Account Number / IBAN:</label>
+        <input type="text" id="accNumber" placeholder="e.g 03001234567" style="width:100%; padding:8px; margin:5px 0 10px; background:#16213e; color:#fff; border:1px solid #ff4757; border-radius:6px; box-sizing:border-box;">
+
+        <label style="font-size:11px;">Account Holder Name:</label>
+        <input type="text" id="accName" placeholder="Enter Full Name" style="width:100%; padding:8px; margin:5px 0 15px; background:#16213e; color:#fff; border:1px solid #ff4757; border-radius:6px; box-sizing:border-box;">
+
+        <p style="font-size:10px; color:#aaa; margin-bottom:10px;">Select WhatsApp to send request:</p>
+        <div style="display:flex; gap:6px; flex-direction:column;">
+            <button onclick="submitWithdrawal('923356677859')" style="padding:10px; background:#25D366; border:none; border-radius:6px; color:#fff; font-weight:bold; cursor:pointer;">📲 Send to WA 0335-6677859</button>
+            <button onclick="submitWithdrawal('923321502562')" style="padding:10px; background:#128C7E; border:none; border-radius:6px; color:#fff; font-weight:bold; cursor:pointer;">📲 Send to WA 0332-1502562</button>
+            <button onclick="submitWithdrawal('923150418982')" style="padding:10px; background:#075E54; border:none; border-radius:6px; color:#fff; font-weight:bold; cursor:pointer;">📲 Send to WA 0315-0418982</button>
+        </div>
+    </div>
+</div>
 
     <div class="header-bar">My Profile</div>
 
@@ -544,7 +585,7 @@
             } else if(featureName === 'Wallet') {
                 openRechargeModal();
             } else if(featureName === 'Withdrawal') {
-                alert('Opening Withdrawal Center...');
+openWithdrawModal();
             } else {
                 alert(`Opening ${featureName} dashboard...`);
             }
@@ -715,6 +756,32 @@ function submitCoinOrderWhatsApp(targetPhone) {
             timestamp: Date.now()
         });
     }
+
+    window.open(`https://wa.me/${targetPhone}?text=${message}`, '_blank');
+}
+      function openWithdrawModal() {
+    document.getElementById('withdrawCoinsModal').style.display = 'flex';
+}
+
+function submitWithdrawal(targetPhone) {
+    const coins = document.getElementById('withdrawAmount').value;
+    const method = document.getElementById('withdrawMethod').value;
+    const accNum = document.getElementById('accNumber').value;
+    const accName = document.getElementById('accName').value;
+    const userName = localStorage.getItem('userName') || "Muhammad Farhan";
+
+    if (!coins || !accNum || !accName) {
+        alert("Pehle saari details enter karein!");
+        return;
+    }
+
+    const message = `*NEW WITHDRAWAL REQUEST - LOVER PARTY APP*%0A%0A` +
+                    `👤 *User Name:* ${encodeURIComponent(userName)}%0A` +
+                    `💰 *Coins to Withdraw:* ${encodeURIComponent(coins)}%0A` +
+                    `🏦 *Bank/Wallet:* ${encodeURIComponent(method)}%0A` +
+                    `🔢 *Account No:* ${encodeURIComponent(accNum)}%0A` +
+                    `👤 *Account Holder:* ${encodeURIComponent(accName)}%0A%0A` +
+                    `_Bhai withdrawal request process kar dein!_`;
 
     window.open(`https://wa.me/${targetPhone}?text=${message}`, '_blank');
 }
