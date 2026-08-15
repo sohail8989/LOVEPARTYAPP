@@ -406,6 +406,36 @@
         }
 
         window.onload = renderRooms;
+              function listenActiveRooms() {
+            if (!window.db) return;
+            
+            const roomsRef = window.db.ref('rooms');
+            roomsRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                const roomsContainer = document.getElementById('roomsContainer'); 
+                if (!roomsContainer) return;
+                
+                roomsContainer.innerHTML = '';
+                if (data) {
+                    Object.keys(data).forEach(key => {
+                        const room = data[key];
+                        roomsContainer.innerHTML += `
+                            <div class="room-card" onclick="window.location.href='room.html?roomId=${room.id}'">
+                                <span class="room-tag">${room.seats} Seats</span>
+                                <img src="${room.image || 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300'}" class="room-card-img" alt="Room Banner">
+                                <div class="room-card-info">
+                                    <h4>${room.name}</h4>
+                                    <p style="font-size:10px; color:#a09cb0;">Tap to Join Live</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    roomsContainer.innerHTML = '<p style="color: #a09cb0; grid-column: span 2; text-align: center; padding: 20px;">No active rooms right now.</p>';
+                }
+            });
+        }
+
     </script>
 </body>
 </html>

@@ -1,6 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+      <!-- Firebase App & Realtime Database CDN scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <script>
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyDsEDoAGFNF-CQknP25rhWP_RoxtvgeCjc",
+        authDomain: "loverpartyapp.firebaseapp.com",
+        databaseURL: "https://loverpartyapp-default-rtdb.firebaseio.com",
+        projectId: "loverpartyapp",
+        storageBucket: "loverpartyapp.firebasestorage.app",
+        messagingSenderId: "1064077187047",
+        appId: "1:1064077187047:web:24f05ce5328a31a9f34f42",
+        measurementId: "G-K7BV8V510W"
+      };
+
+      // Initialize Firebase (Compat version)
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.database();
+
+      // Global variables taake poori file mein use ho sakein
+      window.db = db;
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LOVER PARTY APP - Live Audio Rooms</title>
@@ -129,9 +153,21 @@
     0% { opacity: 1; }
     100% { opacity: 0; }
 }
+      /* Speaking Wave Animation */
+.seat-item.speaking .avatar-circle { border-color: #ff3366; animation: speakPulse 1s infinite alternate; }
+@keyframes speakPulse {
+    0% { box-shadow: 0 0 5px rgba(255,51,102,0.4); }
+    100% { box-shadow: 0 0 15px rgba(255,51,102,0.9), inset 0 0 10px rgba(255,51,102,0.5); }
+}
+/* Network Ping & Mic Badge on Seats */
+.seat-badges { position: absolute; bottom: 0; width: 100%; display: flex; justify-content: space-between; padding: 0 4px; font-size: 8px; background: rgba(0,0,0,0.6); }
+.ping-indicator { color: #00ffcc; }
+.mic-badge { color: #ff3366; }
     </style>
 </head>
 <body>
+  <div id="remoteAudioContainer" style="display:none;"></div>
+
   <!-- VIP Entrance Overlay Div -->
 <div id="vipEntranceOverlay">
     <div class="vip-badge-title" id="vipTitleText">👑 VIP 25 ARRIVED</div>
@@ -222,12 +258,16 @@
         // Dynamic User & ID creation
         const userID = savedUser.uid || ('user_' + Math.floor(100000 + Math.random() * 900000));
         const userName = savedUser.displayName || savedUser.email?.split('@')[0] || ('User_' + Math.floor(1000 + Math.random() * 9000));
-
-        let seatsData = {
-            1: null, 2: null, 3: null, 4: null,
-            5: null, 6: null, 7: null, 8: null
-        };
-
+let seatsData = {
+    1: null,
+    2: null,
+    3: null,
+    4: null,
+    5: null,
+    6: null,
+    7: null,
+    8: null
+};
         let giftDatabase = JSON.parse(localStorage.getItem('lover_party_real_videos')) || {
             normal: [
                 { name: "Rose Shower", price: 10, src: "https://www.w3schools.com/html/mov_bbb.mp4", type: "video" }
@@ -251,28 +291,65 @@
                 panel.style.display = 'none';
             }
         }
-
-
-        function renderSeats() {
-            const grid = document.getElementById('seatsGrid');
-            grid.innerHTML = '';
-            for (let i = 1; i <= 8; i++) {
-                let data = seatsData[i];
-                let isOccupied = data !== null;
-                let div = document.createElement('div');
-                div.className = `seat-item ${isOccupied ? 'occupied' : ''}`;
-                div.onclick = () => takeSeat(i);
-                
-                div.innerHTML = `
-                    <div class="avatar-circle">
-                        ${i === 1 ? '<div class="crown-badge">👑</div>' : ''}
-                        <span class="placeholder-icon">${isOccupied ? '😊' : '🎙️'}</span>
-                    </div>
-                    <span class="seat-name">${isOccupied ? data.user : (i === 1 ? 'Farhan' : 'Seat ' + i)}</span>
-                `;
-                grid.appendChild(div);
+function renderSeats() {
+    const grid = document.getElementById('seatsGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    
+    for (let i = 1; i <= 8; i++) {
+        let seatInfo = seatsData[i];
+        let isOccupied = (seatInfo !== null && seatInfo !== undefined && typeof seatInfo === 'object' && seatInfo.user);
+        
+        let div = document.createElement('div');
+        div.className = `seat-item ${isOccupied ? 'occupied' : ''} ${isOccupied && seatInfo.speaking && !seatInfo.muted ? 'speaking' : ''}`;
+        
+        div.onclick = () => {
+            if (!isOccupied) {
+                // Pehle check karein ke user pehle se kisi aur seat par hai toh wahan se uth jaye
+                for (let s = 1; s <= 8; s++) {
+                    if (seatsData[s] && seatsData[s].user === userName) {
+                        seatsData[s] = null;
+                    }
+                }
+                // Nayi seat par baith jaye
+                seatsData[i] = { user: userName, muted: isMuted, speaking: true, ping: '24ms' };
+                renderSeats();
+            } else if (seatInfo.user === userName || userName === 'Muhammad Farhan' || savedUser.isOwner) {
+                let action = prompt(`Seat ${i} (${seatInfo.user}): Type 'mute' to toggle mic, or 'leave' to vacate.`);
+                if (action === 'mute') {
+                    seatInfo.muted = !seatInfo.muted;
+                    if (seatInfo.user === userName && localStream && zg) {
+                        isMuted = seatInfo.muted;
+                        zg.mutePublishStreamAudio(localStream, isMuted);
+                        let btn = document.getElementById('micBtn');
+                        if(btn) {
+                            btn.innerHTML = isMuted ? "🔇 Unmuted" : "🎤 Mute";
+                            btn.style.background = isMuted ? "linear-gradient(135deg, #ff3366, #cc2952)" : "linear-gradient(135deg, #2a2c4e, #1f213d)";
+                        }
+                    }
+                    renderSeats();
+                } else if (action === 'leave') {
+                    seatsData[i] = null;
+                    renderSeats();
+                }
             }
-        }
+        };
+
+        div.innerHTML = `
+            <div class="avatar-circle">
+                ${i === 1 ? '<div class="crown-badge">👑</div>' : ''}
+                <span class="placeholder-icon">${isOccupied ? '😊' : '🎙️'}</span>
+                ${isOccupied ? `
+                <div class="seat-badges">
+                    <span class="ping-indicator">${seatInfo.ping || '24ms'}</span>
+                    <span class="mic-badge">${seatInfo.muted ? '🔇' : '🎤'}</span>
+                </div>` : ''}
+            </div>
+            <span class="seat-name">${isOccupied ? seatInfo.user : ('Seat ' + i)}</span>
+        `;
+        grid.appendChild(div);
+    }
+}
 
         function takeSeat(seatNum) {
             for (let s in seatsData) {
@@ -427,6 +504,26 @@ card.onclick = () => {
             try {
                 zg = new ZegoExpressEngine(appID, server);
                 await zg.loginRoom('lover_room_101', "", { userID: userID, userName: userName }, { userUpdate: true });
+                              zg.on('roomStreamUpdate', async (roomID, updateType, streamList) => {
+                    if (updateType === 'ADD') {
+                        for (let stream of streamList) {
+                            let streamID = stream.streamID;
+                            let remoteStream = await zg.startPlayingStream(streamID);
+                            const audioContainer = document.getElementById('remoteAudioContainer');
+                            let audioEl = document.createElement('audio');
+                            audioEl.srcObject = remoteStream;
+                            audioEl.autoplay = true;
+                            audioEl.id = 'audio_' + streamID;
+                            audioContainer.appendChild(audioEl);
+                        }
+                    } else if (updateType === 'DELETE') {
+                        for (let stream of streamList) {
+                            zg.stopPlayingStream(stream.streamID);
+                            let el = document.getElementById('audio_' + stream.streamID);
+                            if (el) el.remove();
+                        }
+                    }
+                });
                 localStream = await zg.createStream({ camera: { audio: true, video: false } });
                 await zg.startPublishingStream('stream_' + userID, localStream);
                 document.getElementById('statusBanner').innerText = "Zego Voice Connected";
@@ -592,7 +689,8 @@ card.onclick = () => {
 
     // Auto Security Initialization & Entrance Call
     window.addEventListener('DOMContentLoaded', () => {
-        const currentUser = getAuthenticatedUser();
+renderSeats();
+      const currentUser = getAuthenticatedUser();
         console.log("🔒 Secure Session Active:", currentUser.userName, "| Role:", currentUser.role);
 
         setTimeout(() => {
