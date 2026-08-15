@@ -337,11 +337,30 @@
                     <span style="font-size:9px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%; text-align:center;">${item.name}</span>
                     <span style="font-size:8px; color:#ff9933;">🪙 ${item.price}</span>
                 `;
-                card.onclick = () => {
-                    playGiftEffect(item);
-                    addChatLog("Gift 🎁", `${userName} sent ${item.name}!`);
-                    closeGiftModal();
-                };
+card.onclick = () => {
+    let price = BigInt(item.price || 0);
+    let currentCoins = BigInt(localStorage.getItem('userCoins') || localStorage.getItem('user_coins') || "0");
+
+    if (currentCoins >= price) {
+        currentCoins -= price;
+        
+        // Storage updates for live cross-page sync
+        localStorage.setItem('userCoins', currentCoins.toString());
+        localStorage.setItem('user_coins', currentCoins.toString());
+
+        // Refresh coin display in room
+        if (typeof syncCoinDisplays === 'function') {
+            syncCoinDisplays();
+        }
+
+        playGiftEffect(item);
+        addChatLog("Gift 🎁", `${userName} sent ${item.name}!`);
+        closeGiftModal();
+    } else {
+        alert("Coins kam hain! Pehle profile se recharge karein.");
+    }
+};
+
                 container.appendChild(card);
             });
         }

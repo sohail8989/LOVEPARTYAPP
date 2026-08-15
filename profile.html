@@ -507,6 +507,19 @@
             }
             container.innerHTML = html;
         }
+    // Jab bhi room.html se coins cut ya add honge, ye profile par live update kar dega
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'userCoins' || e.key === 'user_coins') {
+            let updatedCoins = e.newValue || "0";
+            
+            // Profile par jahan coins show hotay hain un elements ki ID update karein
+            let profileCoinsElem = document.getElementById('profileCoinBalance') || document.getElementById('userCoinDisplay');
+            
+            if (profileCoinsElem) {
+                profileCoinsElem.innerText = Number(updatedCoins).toLocaleString();
+            }
+        }
+    });
     </script>
 </body>
 </html>
