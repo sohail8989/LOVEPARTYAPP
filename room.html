@@ -137,6 +137,15 @@
 
         <!-- Scrollable Gift Container -->
         <div class="gift-grid" id="giftItemsContainer"></div>
+                <!-- Gift Footer Action Bar (Coins Display) -->
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);">
+            <div style="display: flex; align-items: center; gap: 6px; font-weight: bold; font-size: 13px; color: #ffcc00;">
+                <span>🟡</span>
+                <span id="modalCoinsDisplay">0</span>
+            </div>
+            <span style="font-size: 10px; color: #aaa;">Tap gift icon to send</span>
+        </div>
+
     </div>
 
     <!-- Fullscreen Left-to-Right Overlay -->
@@ -368,16 +377,89 @@
             container.appendChild(div);
             container.scrollTop = container.scrollHeight;
         }
+        // Coin Key Definition
+        const COIN_KEY = 'user_coins_balance';
+
+        function getOwnerCoins() {
+            let coins = localStorage.getItem(COIN_KEY);
+            if (!coins) {
+                coins = "5000000000000000000000000";
+                localStorage.setItem(COIN_KEY, coins);
+            }
+            return coins;
+        }
+
+        function syncCoinDisplays() {
+            let currentCoins = getOwnerCoins();
+            let formattedCoins;
+            try {
+                let bigCoins = BigInt(currentCoins);
+                formattedCoins = bigCoins > 1000000n ? bigCoins.toLocaleString() : bigCoins.toString();
+            } catch (e) {
+                formattedCoins = currentCoins;
+            }
+            const modalCoinEl = document.getElementById('modalCoinsDisplay');
+            if (modalCoinEl) modalCoinEl.innerText = formattedCoins;
+        }
+
+        function sendGiftItem(item) {
+            let currentCoins = BigInt(getOwnerCoins());
+            let giftPrice = BigInt(item.price || 0);
+
+            if (currentCoins < giftPrice) {
+                alert("Insufficient Coin Balance!");
+                return;
+            }
+
+            let newBalance = currentCoins - giftPrice;
+            localStorage.setItem(COIN_KEY, newBalance.toString());
+
+            syncCoinDisplays();
+            playGiftEffect(item);
+            addChatLog("Gift 🎁", `${userName} sent ${item.name}!`);
+            closeGiftModal();
+        }
+
+        function switchGiftTab(cat) {
+            ['normal', 'customized', 'vip'].forEach(c => {
+                document.getElementById('tab-btn-' + c).classList.remove('active');
+            });
+            document.getElementById('tab-btn-' + cat).classList.add('active');
+
+            const container = document.getElementById('giftItemsContainer');
+            container.innerHTML = '';
+
+            let items = giftDatabase[cat];
+            if (!items || items.length === 0) {
+                container.innerHTML = '<div style="grid-column: span 4; text-align:center; font-size:11px; color:#aaa; padding:20px;">No gifts here.</div>';
+                return;
+            }
+
+            items.forEach(item => {
+                let card = document.createElement('div');
+                card.className = 'gift-card';
+                card.innerHTML = `
+                    <video src="${item.src}" muted playsinline></video>
+                    <span style="font-size:9px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%; text-align:center;">${item.name}</span>
+                    <span style="font-size:8px; color:#ff9933;">🪙 ${item.price}</span>
+                `;
+                card.onclick = () => sendGiftItem(item);
+                container.appendChild(card);
+            });
+
+            syncCoinDisplays();
+        }
 
         function leaveRoom() {
             if (zg) { try { zg.logoutRoom('lover_room_101'); } catch(e){} }
             alert("Left room.");
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
+                window.addEventListener('DOMContentLoaded', () => {
             renderSeats();
             checkOwnerAccess();
             initZegoLiveRoom();
+            syncCoinDisplays();
         });
     </script>
 </body>
