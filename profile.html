@@ -245,6 +245,77 @@
     </style>
 </head>
 <body>
+<!-- Real Wallet Coin Buy Modal -->
+<div id="buyCoinsModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:10000; justify-content:center; align-items:center;">
+    <div style="background:#1a1a2e; border:2px solid #ffd700; width:92%; max-width:400px; border-radius:15px; padding:18px; color:#fff; font-family:sans-serif; max-height:92vh; overflow-y:auto;">
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #333; padding-bottom:10px;">
+            <h3 style="margin:0; color:#ffd700; font-size:16px;">💎 Buy Real Coins</h3>
+            <span onclick="document.getElementById('buyCoinsModal').style.display='none'" style="cursor:pointer; font-size:20px; color:#ff4757;">✖</span>
+        </div>
+
+        <!-- Official Accounts & Copy Section -->
+        <div style="background:#0f3460; padding:10px; border-radius:10px; margin:12px 0; font-size:12px; display:flex; flex-direction:column; gap:8px;">
+            
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span><b>💳 EasyPaisa:</b> 03319915139 <br><small style="color:#aaa;">(Muhammad Farhan)</small></span>
+                <button onclick="copyToClipboard('03319915139', 'EasyPaisa')" style="background:#4eacc5; border:none; color:#fff; padding:4px 8px; border-radius:4px; font-size:10px; cursor:pointer;">📋 Copy</button>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span><b>💳 JazzCash:</b> 03499780098 <br><small style="color:#aaa;">(Amir Sohail)</small></span>
+                <button onclick="copyToClipboard('03499780098', 'JazzCash')" style="background:#fffa65; color:#000; border:none; padding:4px 8px; border-radius:4px; font-size:10px; cursor:pointer; font-weight:bold;">📋 Copy</button>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span><b>🏦 Meezan Bank:</b> 12340104613615</span>
+                <button onclick="copyToClipboard('12340104613615', 'Meezan Bank')" style="background:#78e08f; color:#000; border:none; padding:4px 8px; border-radius:4px; font-size:10px; cursor:pointer; font-weight:bold;">📋 Copy</button>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span><b>📱 WhatsApp 1:</b> 03356677859</span>
+                <button onclick="copyToClipboard('03356677859', 'WhatsApp 1')" style="background:#25D366; color:#fff; border:none; padding:4px 8px; border-radius:4px; font-size:10px; cursor:pointer; font-weight:bold;">📋 Copy</button>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span><b>📱 WhatsApp 2:</b> 03321502562</span>
+                <button onclick="copyToClipboard('03321502562', 'WhatsApp 2')" style="background:#128C7E; color:#fff; border:none; padding:4px 8px; border-radius:4px; font-size:10px; cursor:pointer; font-weight:bold;">📋 Copy</button>
+            </div>
+        </div>
+
+        <!-- Corrected Packages Selection -->
+        <label style="font-size:11px;">Select Coin Package:</label>
+        <select id="coinPackageSelect" style="width:100%; padding:8px; margin:4px 0 10px; background:#16213e; color:#fff; border:1px solid #4eacc5; border-radius:6px; font-size:12px;">
+            <option value="10000 Coins (Rs. 100)">10,000 Coins — Rs. 100</option>
+            <option value="50000 Coins (Rs. 500)">50,000 Coins — Rs. 500</option>
+            <option value="100000 Coins (Rs. 1000)">100,000 Coins — Rs. 1,000</option>
+            <option value="200000 Coins (Rs. 2000)">200,000 Coins — Rs. 2,000</option>
+            <option value="400000 Coins (Rs. 4000)">400,000 Coins — Rs. 4,000</option>
+            <option value="800000 Coins (Rs. 8000)">800,000 Coins — Rs. 8,000</option>
+            <option value="1000000 Coins (Rs. 10000)">1,000,000 Coins — Rs. 10,000</option>
+        </select>
+
+        <label style="font-size:11px;">Payment Method Used:</label>
+        <select id="payMethodSelect" style="width:100%; padding:8px; margin:4px 0 10px; background:#16213e; color:#fff; border:1px solid #4eacc5; border-radius:6px; font-size:12px;">
+            <option value="Easypaisa">Easypaisa</option>
+            <option value="JazzCash">JazzCash</option>
+            <option value="Meezan Bank">Meezan Bank</option>
+        </select>
+
+        <label style="font-size:11px;">Transaction ID / Sender Number:</label>
+        <input type="text" id="trxIdInput" placeholder="Enter TID or Account Number" style="width:100%; padding:8px; margin:4px 0 12px; background:#16213e; color:#fff; border:1px solid #4eacc5; border-radius:6px; box-sizing:border-box; font-size:12px;">
+
+        <!-- Direct Action Buttons -->
+        <div style="display:flex; gap:6px;">
+            <button onclick="submitCoinOrderWhatsApp('923356677859')" style="flex:1; padding:10px; background:#25D366; border:none; border-radius:8px; font-weight:bold; color:#fff; font-size:10px; cursor:pointer;">
+                📲 Share Slip (WA 1)
+            </button>
+            <button onclick="submitCoinOrderWhatsApp('923321502562')" style="flex:1; padding:10px; background:#128C7E; border:none; border-radius:8px; font-weight:bold; color:#fff; font-size:10px; cursor:pointer;">
+                📲 Share Slip (WA 2)
+            </button>
+        </div>
+    </div>
+</div>
 
     <div class="header-bar">My Profile</div>
 
@@ -275,7 +346,7 @@
         </div>
 
         <!-- NEW: Coin Balance & Recharge Owner Button -->
-        <div class="balance-card" onclick="openRechargeModal()">
+<div class="balance-card" onclick="openCoinStore()">
             <div>
                 <div style="font-size: 16px;">💰 Coin Balance & Recharge</div>
                 <div id="ownerBalanceText" style="font-size: 12px; font-weight: bold; margin-top: 2px;">Balance: 5,000,000,000,000,000,000,000,000</div>
@@ -520,6 +591,133 @@
             }
         }
     });
+    // profile.html ke script section mein buildVipTable aur related functions ko is se replace karein
+
+// Owner Account Balance check aur Auto VIP Upgrade Logic
+let userCoins = localStorage.getItem('userCoins') || "5000000000000000000";
+let totalRechargedUSD = parseFloat(localStorage.getItem('totalRechargedUSD')) || 0;
+
+// Agar account Owner Account / High Coin Holder hai toh VIP 25 Auto Grant karein
+if (userCoins.length > 10 || parseFloat(userCoins) >= 335544320) {
+    totalRechargedUSD = 335544320; // VIP 25 threshold set
+    localStorage.setItem('totalRechargedUSD', totalRechargedUSD);
+}
+
+function calculateVipLevel(spent) {
+    let currentPrice = 20;
+    let level = 0;
+    for (let i = 1; i <= 25; i++) {
+        if (spent >= currentPrice) {
+            level = i;
+        } else {
+            break;
+        }
+        currentPrice *= 2;
+    }
+    return level;
+}
+
+
+function buildVipTable() {
+    let container = document.getElementById('vipListContainer');
+    if (!container) return;
+
+    let currentVip = calculateVipLevel(totalRechargedUSD);
+    localStorage.setItem('userVipLevel', currentVip); // Active VIP save ho jayega
+
+    let html = `
+        <div style="background:#1a1738; padding:12px; border-radius:10px; margin-bottom:15px; text-align:center; border:1px solid #ffd700;">
+            <div style="color:#fff; font-size:13px; font-weight:bold;">Current Status: <span style="color:#ffd700;">VIP ${currentVip}</span></div>
+            <div style="color:#aaa; font-size:11px; margin-top:4px;">Total Purchased: <b style="color:#00ff88;">$${totalRechargedUSD.toFixed(2)}</b></div>
+        </div>
+    `;
+
+    let reqPrice = 20;
+    for (let i = 1; i <= 25; i++) {
+        let isUnlocked = totalRechargedUSD >= reqPrice;
+        let diff = reqPrice - totalRechargedUSD;
+
+        html += `
+            <div class="vip-item" style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #2b255c;">
+                <div>
+                    <div style="font-weight:bold; color:${isUnlocked ? '#ffd700' : '#fff'}; font-size:13px;">
+                        VIP ${i} ${isUnlocked ? '👑' : ''}
+                    </div>
+                    <div style="font-size:10px; color:#aaa;">
+                        ${isUnlocked ? '<span style="color:#00ff88;">Unlocked</span>' : `Recharge <b style="color:#ff3366;">$${diff.toFixed(2)}</b> more`}
+                    </div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="color: #ffd700; font-weight: bold; font-size:12px;">$${reqPrice.toLocaleString()}</div>
+                    <button style="background:${isUnlocked ? '#00b09b' : '#333'}; color:${isUnlocked ? '#fff' : '#888'}; border:none; padding:4px 8px; border-radius:6px; font-size:10px; cursor:default; margin-top:4px;">
+                        ${isUnlocked ? 'Active' : 'Locked 🔒'}
+                    </button>
+                </div>
+            </div>
+        `;
+        reqPrice *= 2;
+    }
+
+    container.innerHTML = html;
+}
+
+// Testing / Recharge Simulation Function (Seller / Payment Admin trigger karega)
+function processUserRecharge(dollarAmount) {
+    totalRechargedUSD += parseFloat(dollarAmount);
+    localStorage.setItem('totalRechargedUSD', totalRechargedUSD);
+    buildVipTable();
+    alert(`Recharge Successful! Added $${dollarAmount}. Total Spent: $${totalRechargedUSD}`);
+}
+      // Open Buy Coins Modal
+      function openCoinStore() {
+    document.getElementById('buyCoinsModal').style.display = 'flex';
+}
+
+function copyToClipboard(text, label) {
+    navigator.clipboard.writeText(text).then(() => {
+        alert("✅ " + label + " Copied: " + text);
+    }).catch(err => {
+        const input = document.createElement('input');
+        input.value = text;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+        alert("✅ " + label + " Copied: " + text);
+    });
+}
+
+function submitCoinOrderWhatsApp(targetPhone) {
+    const pkgCoins = document.getElementById('coinPackageSelect').value;
+    const payMethod = document.getElementById('payMethodSelect').value;
+    const trxId = document.getElementById('trxIdInput').value.trim();
+    const userName = localStorage.getItem('userName') || "Muhammad Farhan";
+
+    if (!trxId) {
+        alert("Pehle Transaction ID ya Sender Number enter karein!");
+        return;
+    }
+
+    const message = `*NEW COIN RECHARGE ORDER - LOVER PARTY APP*%0A%0A` +
+                    `👤 *User Name:* ${encodeURIComponent(userName)}%0A` +
+                    `💎 *Package:* ${encodeURIComponent(pkgCoins)}%0A` +
+                    `💳 *Method:* ${encodeURIComponent(payMethod)}%0A` +
+                    `📄 *Trx ID / Sender:* ${encodeURIComponent(trxId)}%0A%0A` +
+                    `_Bhai payment slip check kar ke coins load kar dein!_`;
+
+    if (typeof firebase !== 'undefined' && firebase.database) {
+        firebase.database().ref('recharge_requests').push({
+            userName: userName,
+            package: pkgCoins,
+            method: payMethod,
+            transactionId: trxId,
+            status: "PENDING",
+            timestamp: Date.now()
+        });
+    }
+
+    window.open(`https://wa.me/${targetPhone}?text=${message}`, '_blank');
+}
     </script>
 </body>
 </html>
