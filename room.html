@@ -76,9 +76,67 @@
         #giftAnimationOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; display: flex; align-items: center; justify-content: center; z-index: 2000; overflow: hidden; background: rgba(0,0,0,0.85); }
         .flying-gift-box { display: flex; flex-direction: column; align-items: center; width: 100%; height: 100%; justify-content: center; }
         .flying-gift-box video { width: 100vw; height: 100vh; object-fit: contain; background: #000; }
+        /* VIP Entrance Grand Card */
+#vipEntranceOverlay {
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    width: 85%;
+    max-width: 360px;
+    background: linear-gradient(135deg, #1f1c2c, #928dab);
+    border: 2px solid #ffd700;
+    border-radius: 15px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.6);
+    z-index: 9999;
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: none;
+}
+
+#vipEntranceOverlay.active {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+}
+
+.vip-badge-title {
+    color: #ffd700;
+    font-size: 16px;
+    font-weight: bold;
+    text-shadow: 0 0 8px #ff8c00;
+    margin-bottom: 5px;
+}
+
+.vip-user-name {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Screen Flash Effect */
+.vip-flash-bg {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle, rgba(255,215,0,0.2) 0%, transparent 70%);
+    z-index: 9998;
+    pointer-events: none;
+    animation: flashFade 1.5s ease-out forwards;
+}
+
+@keyframes flashFade {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+}
     </style>
 </head>
 <body>
+  <!-- VIP Entrance Overlay Div -->
+<div id="vipEntranceOverlay">
+    <div class="vip-badge-title" id="vipTitleText">👑 VIP 25 ARRIVED</div>
+    <div class="vip-user-name" id="vipUserText">Muhammad Farhan entered the room</div>
+</div>
 
     <div class="app-container">
         <!-- Room Header -->
@@ -484,6 +542,64 @@ card.onclick = () => {
             initZegoLiveRoom();
             syncCoinDisplays();
         });
+    // VIP Entrance Animation Trigger
+    function showVipRoomEntrance() {
+        let vipLevel = localStorage.getItem('userVipLevel') || 25;
+        let userName = localStorage.getItem('userName') || "Muhammad Farhan";
+
+        if (parseInt(vipLevel) > 0) {
+            let flashDiv = document.createElement('div');
+            flashDiv.className = 'vip-flash-bg';
+            document.body.appendChild(flashDiv);
+            setTimeout(() => { if(flashDiv) flashDiv.remove(); }, 1500);
+
+            let overlay = document.getElementById('vipEntranceOverlay');
+            let titleElem = document.getElementById('vipTitleText');
+            let userElem = document.getElementById('vipUserText');
+
+            if (titleElem) titleElem.innerHTML = `👑 VIP ${vipLevel} ARRIVED ✨`;
+            if (userElem) userElem.innerHTML = `<span style="color:#ffd700;">${userName}</span> entered the room!`;
+
+            if (overlay) {
+                overlay.classList.add('active');
+                setTimeout(() => {
+                    overlay.classList.remove('active');
+                }, 3500);
+            }
+        }
+    }
+
+    // User Roles & Session Security Check
+    function getAuthenticatedUser() {
+        let sessionUser = sessionStorage.getItem('activeUserSession');
+        if (!sessionUser) {
+            let name = localStorage.getItem('userName') || "Muhammad Farhan";
+            let vip = parseInt(localStorage.getItem('userVipLevel')) || 25;
+            let role = localStorage.getItem('userRole') || (vip >= 20 ? 'host' : 'member');
+            let token = 'SEC_TOKEN_' + Math.random().toString(36).substr(2, 9).toUpperCase();
+
+            sessionUser = JSON.stringify({
+                userName: name,
+                vipLevel: vip,
+                role: role,
+                token: token,
+                sessionStart: Date.now()
+            });
+            sessionStorage.setItem('activeUserSession', sessionUser);
+        }
+        return JSON.parse(sessionUser);
+    }
+
+    // Auto Security Initialization & Entrance Call
+    window.addEventListener('DOMContentLoaded', () => {
+        const currentUser = getAuthenticatedUser();
+        console.log("🔒 Secure Session Active:", currentUser.userName, "| Role:", currentUser.role);
+
+        setTimeout(() => {
+            showVipRoomEntrance();
+        }, 1000);
+    });
+
     </script>
 </body>
 </html>
