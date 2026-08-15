@@ -158,12 +158,15 @@
         let zg = null;
         let localStream = null;
         let isMuted = false;
-        const userID = 'user_' + Math.floor(Math.random() * 100000);
-        const userName = 'Muhammad Farhan'; // Your owner profile name
+                // Dynamic user fetch from Firebase / Local Storage
+        let savedUser = JSON.parse(localStorage.getItem('currentUser')) || {};
+        
+        // Dynamic User & ID creation
+        const userID = savedUser.uid || ('user_' + Math.floor(100000 + Math.random() * 900000));
+        const userName = savedUser.displayName || savedUser.email?.split('@')[0] || ('User_' + Math.floor(1000 + Math.random() * 9000));
 
         let seatsData = {
-            1: { user: 'Muhammad Farhan' },
-            2: null, 3: null, 4: null, 
+            1: null, 2: null, 3: null, 4: null,
             5: null, 6: null, 7: null, 8: null
         };
 
