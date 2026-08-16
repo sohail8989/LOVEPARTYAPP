@@ -257,7 +257,7 @@
         
         // Dynamic User & ID creation
         const userID = savedUser.uid || ('user_' + Math.floor(100000 + Math.random() * 900000));
-        const userName = savedUser.displayName || savedUser.email?.split('@')[0] || ('User_' + Math.floor(1000 + Math.random() * 9000));
+const userName = (savedUser.displayName && savedUser.displayName !== "User") ? savedUser.displayName : "Muhammad Farhan";
 // URL se Room ID get karna
 const urlParams = new URLSearchParams(window.location.search);
 const roomId = urlParams.get('id') || 'lover_room_101';
@@ -284,7 +284,10 @@ seatsRef.on('value', (snapshot) => {
             normal: [
                 { name: "Rose Shower", price: 10, src: "https://www.w3schools.com/html/mov_bbb.mp4", type: "video" }
             ],
-            customized: [],
+            customized: [
+                { name: "Magic Diamond", price: 1000, src: "https://www.w3schools.com/html/mov_bbb.mp4", type: "video" },
+                { name: "Love Portal", price: 2500, src: "https://www.w3schools.com/html/mov_bbb.mp4", type: "video" }
+            ],
             vip: [
                 { name: "Sports Car", price: 500, src: "https://www.w3schools.com/html/mov_bbb.mp4", type: "video" }
             ]
