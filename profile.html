@@ -605,20 +605,6 @@ openWithdrawModal();
             document.getElementById('rechargeModal').style.display = 'none';
         }
 
-        function buildVipTable() {
-            let container = document.getElementById('vipListContainer');
-            let html = '';
-            let currentPrice = 20;
-
-            for(let i = 1; i <= 25; i++) {
-                html += `<div class="vip-item">
-                    <span>VIP ${i}</span>
-                    <span style="color: #ffd700; font-weight: bold;">$${currentPrice}</span>
-                </div>`;
-                currentPrice *= 2;
-            }
-            container.innerHTML = html;
-        }
     // Jab bhi room.html se coins cut ya add honge, ye profile par live update kar dega
     window.addEventListener('storage', (e) => {
         if (e.key === 'userCoins' || e.key === 'user_coins') {

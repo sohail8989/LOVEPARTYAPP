@@ -31,20 +31,85 @@
     <!-- Zego Express Engine Web SDK -->
     <script src="https://download.zego.im/sdk/zego_express_engine_web_v2.21.0.js"></script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body, html { width: 100%; height: 100%; background: linear-gradient(135deg, #0f1020, #1b1c3a); color: white; overflow: hidden; }
-        
-        .app-container { display: flex; flex-direction: column; width: 100%; height: 100%; position: relative; }
+      /* Room Layout & Background */
+body {
+    background: linear-gradient(135deg, #0b0f19, #1a1025);
+    color: #ffffff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+}
 
-        /* Header Bar */
-        .room-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(25, 26, 48, 0.95); border-bottom: 1px solid rgba(255,255,255,0.08); z-index: 10; }
-        .room-info h3 { font-size: 14px; color: #ff3366; }
-        .room-info span { font-size: 11px; color: #00ffcc; }
-        .leave-btn { background: #ff3366; color: white; border: none; padding: 6px 14px; border-radius: 15px; font-weight: 600; font-size: 11px; cursor: pointer; }
+/* Owner Seat Container (Top Center) */
+.owner-seat-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px auto;
+}
 
-        /* Status Banner */
-        .status-banner { text-align: center; background: rgba(0,255,204,0.1); color: #00ffcc; font-size: 10px; padding: 4px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.owner-avatar-box {
+    width: 75px;
+    height: 75px;
+    border-radius: 50%;
+    border: 3px solid #d4af37; /* Gold border */
+    background: #222;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+}
 
+/* Multi-Seat Grid Layout */
+.seats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    padding: 15px;
+    max-width: 450px;
+    margin: 0 auto;
+}
+
+.seat-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.seat-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.seat-circle.occupied {
+    border: 2px solid #ff3366;
+    background: rgba(255, 51, 102, 0.1);
+    box-shadow: 0 0 10px rgba(255, 51, 102, 0.5);
+}
+
+.seat-circle img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.seat-label {
+    font-size: 11px;
+    margin-top: 5px;
+    color: #b0b0b0;
+    text-align: center;
+}
         /* 8-Seat Grid Layout (Zego Style) */
         .stage-area { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 15px 10px; gap: 15px; overflow-y: auto; }
         .seats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: 100%; max-width: 400px; justify-items: center; }
@@ -83,10 +148,43 @@
         .gift-action-btn { background: linear-gradient(135deg, #ff3366, #ff9933); border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 4px 15px rgba(255,51,102,0.5), inset 0 1px 0 rgba(255,255,255,0.4); }
 
         /* Gift Modal Popup */
-        #giftModal { display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(20, 21, 37, 0.99); border-radius: 20px 20px 0 0; padding: 15px; z-index: 1000; border-top: 1px solid rgba(255,255,255,0.2); max-height: 85vh; overflow-y: auto; }
-        
-        .admin-panel { margin-bottom: 12px; background: rgba(0,255,204,0.08); border: 1px dashed #00ffcc; padding: 10px; border-radius: 10px; }
-        
+#giftModal {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(20, 21, 37, 0.98);
+    border-radius: 20px 20px 0 0;
+    padding: 15px;
+    z-index: 1000;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    max-height: 80vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+.admin-panel {
+    background: rgba(0, 255, 204, 0.08);
+    border: 1px dashed rgba(0, 255, 204, 0.4);
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+}
+
+#giftModal button[onclick="closeGiftModal()"] {
+    background: rgba(255, 255, 255, 0.12) !important;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px !important;
+    color: #ffffff !important;
+    cursor: pointer;
+}    
         /* 3D Tabs */
         .gift-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
         .tab-btn { flex: 1; background: linear-gradient(135deg, #2a2c4e, #1b1c3a); color: white; border: 1px solid rgba(255,255,255,0.15); padding: 9px; border-radius: 18px; font-size: 11px; font-weight: 700; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.3); }
@@ -163,11 +261,176 @@
 .seat-badges { position: absolute; bottom: 0; width: 100%; display: flex; justify-content: space-between; padding: 0 4px; font-size: 8px; background: rgba(0,0,0,0.6); }
 .ping-indicator { color: #00ffcc; }
 .mic-badge { color: #ff3366; }
+.room-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    background: rgba(25, 26, 48, 0.95);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.room-info h3 {
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+    letter-spacing: 0.5px;
+    color: #ffffff !important;
+}
+
+#roomIDDisplay {
+    background: rgba(255, 255, 255, 0.12);
+    padding: 3px 10px;
+    border-radius: 12px;
+    color: #00ffcc;
+    font-weight: bold;
+    font-size: 11px;
+    box-shadow: inset 0 1px 2px rgba(255,255,255,0.2), 0 2px 5px rgba(0,0,0,0.4);
+    border: 1px solid rgba(0, 255, 204, 0.3);
+}
+
+.status-banner {
+    background: linear-gradient(135deg, #1e1f38, #2a2c4e);
+    padding: 10px 15px;
+    margin: 10px 15px;
+    border-radius: 12px;
+    text-align: center;
+    color: #00ffcc;
+    font-weight: bold;
+    font-size: 13px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.leave-btn {
+    background: linear-gradient(135deg, #ff3366, #ff0055);
+    color: #ffffff;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(255, 51, 102, 0.4);
+    transition: all 0.2s ease;
+}
+
+.leave-btn:active {
+    transform: scale(0.95);
+}
+      /* Left-to-Right Full Screen Overlay shifted further down */
+      #giftAnimationOverlay { 
+          position: fixed; 
+          top: 0; 
+          left: 0; 
+          width: 100vw; 
+          height: 100vh; 
+          pointer-events: none; 
+          display: flex; 
+          align-items: center; 
+          justify-content: center; 
+          z-index: 2000; 
+          overflow: hidden; 
+          background: rgba(0,0,0,0.75); 
+      }
+      
+      .flying-gift-box { 
+          display: flex; 
+          flex-direction: column; 
+          align-items: center; 
+          width: 100%; 
+          height: 100%; 
+          justify-content: center; 
+          padding-top: 28vh; /* Animation ko mazeed neeche karne ke liye */
+      }
+      
+      .flying-gift-box video { 
+          width: 100vw; 
+          height: 42vh; 
+          object-fit: cover; 
+          background: transparent; 
+      }
+      /* Top-left Gift text/icon ko completely ghaib karne ke liye */
+      #floatingGiftOverlay, img[src*="Gift"], .floating-gift-img, .floating-gift-text {
+          display: none !important;
+      }
+    /* Gift Sender Popup Pill Style (Screenshot ke mutabiq) */
+    #giftSenderPopup {
+        position: absolute;
+        top: 22vh;
+        left: 15px;
+        background: linear-gradient(135deg, rgba(30, 15, 50, 0.9), rgba(60, 20, 80, 0.85));
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 30px;
+        padding: 5px 12px 5px 5px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+        z-index: 2002;
+        animation: popupSlideIn 0.3s ease-out forwards;
+    }
+
+    .popup-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 1.5px solid #ff3366;
+        object-fit: cover;
+    }
+
+    .popup-info {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.1;
+    }
+
+    .popup-username {
+        font-size: 11px;
+        font-weight: bold;
+        color: #ffffff;
+        max-width: 90px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .popup-action {
+        font-size: 9px;
+        color: #ff9933;
+    }
+
+    .popup-gift-thumb {
+        width: 30px;
+        height: 30px;
+        border-radius: 6px;
+        object-fit: cover;
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .popup-multiplier {
+        font-size: 16px;
+        font-style: italic;
+        font-weight: 900;
+        color: #ffffff;
+        text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+        margin-left: 2px;
+    }
+
+    @keyframes popupSlideIn {
+        0% { transform: translateX(-50px); opacity: 0; }
+        100% { transform: translateX(0); opacity: 1; }
+    }
     </style>
 </head>
 <body>
   <div id="remoteAudioContainer" style="display:none;"></div>
-
+    <!-- Left to Right Floating Banner Overlay -->
+    <div id="floatingGiftOverlay">
+        <img id="floatingGiftImg" class="floating-gift-img" src="" alt="Gift">
+        <div class="floating-gift-text">
+            <span id="floatingSenderName" class="floating-sender-name"></span>
+            <span id="floatingGiftName" class="floating-gift-name"></span>
+        </div>
+    </div>
   <!-- VIP Entrance Overlay Div -->
 <div id="vipEntranceOverlay">
     <div class="vip-badge-title" id="vipTitleText">👑 VIP 25 ARRIVED</div>
@@ -383,7 +646,7 @@ function renderSeats() {
             const overlay = document.getElementById('giftAnimationOverlay');
             overlay.style.display = 'flex';
             overlay.innerHTML = '';
-
+            
             const box = document.createElement('div');
             box.className = 'flying-gift-box';
             
@@ -393,23 +656,36 @@ function renderSeats() {
             vid.controls = false;
             vid.playsInline = true;
 
+            // Screenshot wala Sender Popup Pill (Avatar, Name, Send, Gift Icon, x1)
+            const popup = document.createElement('div');
+            popup.id = 'giftSenderPopup';
+            popup.innerHTML = `
+                <img src="https://www.w3schools.com/howto/img_avatar.png" class="popup-avatar" alt="Avatar">
+                <div class="popup-info">
+                    <span class="popup-username">${userName}</span>
+                    <span class="popup-action">Send 🎁</span>
+                </div>
+                <video src="${item.src}" class="popup-gift-thumb" muted playsinline></video>
+                <span class="popup-multiplier">x1</span>
+            `;
+
+            // Neeche wala text label jo pehle lagaya tha
             const label = document.createElement('div');
-            label.style.cssText = "position:absolute; bottom:40px; width:100%; text-align:center; font-size:14px; color:#ffcc00; font-weight:bold; text-shadow: 0 2px 4px rgba(0,0,0,0.8); z-index:2001;";
+            label.style.cssText = "position:absolute; bottom:18vh; width:100%; text-align:center; font-size:14px; color:#ffcc00; font-weight:bold; text-shadow: 0 2px 4px rgba(0,0,0,0.8); z-index:2001;";
             label.innerText = `🎁 ${userName} sent ${item.name}!`;
 
             box.appendChild(vid);
             overlay.appendChild(box);
+            overlay.appendChild(popup);
             overlay.appendChild(label);
 
             vid.play().catch(e => console.log("Audio play error:", e));
 
-            // Remove overlay when full video ends
             vid.onended = () => {
                 overlay.style.display = 'none';
                 overlay.innerHTML = '';
             };
 
-            // Safety fallback timer
             setTimeout(() => {
                 if (overlay.style.display === 'flex') {
                     overlay.style.display = 'none';
@@ -417,6 +693,25 @@ function renderSeats() {
                 }
             }, (vid.duration ? vid.duration * 1000 : 30000));
         }
+
+      function showFloatingGiftBanner(senderName, giftName, giftSrc) {
+    const overlay = document.getElementById('floatingGiftOverlay');
+    const imgEl = document.getElementById('floatingGiftImg');
+    const senderEl = document.getElementById('floatingSenderName');
+    const giftEl = document.getElementById('floatingGiftName');
+
+    if (!overlay) return;
+
+    senderEl.innerText = senderName + " sent a gift!";
+    giftEl.innerText = giftName;
+    imgEl.src = giftSrc;
+
+    overlay.classList.add('show');
+
+    setTimeout(() => {
+        overlay.classList.remove('show');
+    }, 3000);
+}
 
         function uploadRealVideoGift() {
             if (userName !== 'Muhammad Farhan') {
@@ -517,12 +812,17 @@ card.onclick = () => {
                 container.appendChild(card);
             });
         }
-
         async function initZegoLiveRoom() {
             try {
                 zg = new ZegoExpressEngine(appID, server);
-                await zg.loginRoom('lover_room_101', "", { userID: userID, userName: userName }, { userUpdate: true });
-                              zg.on('roomStreamUpdate', async (roomID, updateType, streamList) => {
+                
+                // Token fetch function call kiya gaya taake security policy meet ho sake
+                const token = await fetchZegoToken(userID);
+
+                // Hardcoded room ki bajaye dynamic 'roomId' aur token pass kiya gaya
+                await zg.loginRoom(roomId, token, { userID: userID, userName: userName }, { userUpdate: true });
+
+                zg.on('roomStreamUpdate', async (roomID, updateType, streamList) => {
                     if (updateType === 'ADD') {
                         for (let stream of streamList) {
                             let streamID = stream.streamID;
@@ -542,10 +842,11 @@ card.onclick = () => {
                         }
                     }
                 });
-                localStream = await zg.createStream({ camera: { audio: true, video: false } });
-                await zg.startPublishingStream('stream_' + userID, localStream);
-                document.getElementById('statusBanner').innerText = "Zego Voice Connected";
+          localStream = await zg.createStream({ camera: { audio: true, video: false } });
+ let localStreamID = "stream_" + userID;
+await zg.startPublishingStream(localStreamID, localStream);            document.getElementById('statusBanner').innerText = "Zego Voice Connected";
             } catch (err) {
+                console.error("Zego Init Error:", err);
                 document.getElementById('statusBanner').innerText = "Interactive Room Ready";
             }
         }
@@ -728,11 +1029,16 @@ renderSeats();
         }, 1000);
     });
     // 1. Token fetch karne ka function
-    async function fetchZegoToken(userID) {
-        // Production ke liye yahan secure backend token API aayegi
-        // Abhi test mode ke liye empty ya test token return karein
-        return ""; 
+async function fetchZegoToken(userID) {
+    try {
+        const response = await fetch(`http://127.0.0.1:3000/getToken?userID=${userID}`);
+        const data = await response.json();
+        return data.token;
+    } catch (error) {
+        console.error("Token fetch error:", error);
+        return "";
     }
+}
 
     // 2. Zego Room Login with Token
     async function initZegoWithToken(appID, server, roomId, userID, userName) {
@@ -751,6 +1057,63 @@ renderSeats();
             console.error("Zego Login Failed:", error);
         }
     }
+// 1. Firebase database se seats ka data real-time listen karna
+function listenToSeats(roomID) {
+    const seatsRef = firebase.database().ref('rooms/' + roomID + '/seats');
+    
+    seatsRef.on('value', (snapshot) => {
+        const seatsData = snapshot.val() || {};
+        
+        // Har seat ko update karna UI par
+        for (let i = 1; i <= 8; i++) {
+            let seatElement = document.getElementById('seat_' + i);
+            if (!seatElement) continue;
+            
+            let userData = seatsData['seat_' + i];
+            if (userData) {
+                // Agar seat occupied hai
+                seatElement.classList.add('occupied');
+                seatElement.innerHTML = `<img src="${userData.avatar || 'default_avatar.png'}" alt="User">`;
+                
+                // Agar yeh current user ki stream hai toh Zego audio play/publish handle hoga
+            } else {
+                // Agar seat khali hai
+                seatElement.classList.remove('occupied');
+                seatElement.innerHTML = `<i class="fas fa-microphone-slash"></i>`; // ya jo mic icon ho
+            }
+        }
+    });
+}
+
+// 2. User ka kisi seat par click kar ke baithna
+async function occupySeat(seatNumber, userID, userName, userAvatar) {
+    const seatRef = firebase.database().ref(`rooms/${roomID}/seats/seat_${seatNumber}`);
+    
+    // Firebase mein seat assign karna
+    await seatRef.set({
+        userID: userID,
+        userName: userName,
+        avatar: userAvatar,
+        isMuted: false
+    });
+}
+// Har seat par click event attach karna taake user seat par baith sakay
+document.querySelectorAll('.seat-circle').forEach((seatEl, index) => {
+    seatEl.addEventListener('click', async () => {
+        let seatNum = index + 1; // Seat number 1 se 8 tak
+        
+        // Agar current user ki details available hain
+        if (typeof currentUser !== 'undefined' && currentUser) {
+            await occupySeat(seatNum, currentUser.uid, currentUser.displayName || "User", currentUser.photoURL || "default_avatar.png");
+            
+            // Zego stream publish karna jab seat mil jaye
+            if (typeof zg !== 'undefined' && localStream) {
+                let localStreamID = "stream_" + currentUser.uid;
+                await zg.startPublishingStream(localStreamID, localStream);
+            }
+        }
+    });
+});
 
     </script>
 </body>
