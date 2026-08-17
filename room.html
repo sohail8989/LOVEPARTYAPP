@@ -201,9 +201,8 @@ body {
 /* VIP Entrance Grand Card - Shifted to Top (Welcome Banner area) */
 #vipEntranceOverlay {
     position: fixed;
-    bottom: 348px; /* 0.40 inch neeche adjust kiya gaya hai */
-    left: 50%;
-    transform: translate(-50%, 20px) scale(0.9);
+    top: 425px; /* 0.6 inch neeche adjust kiya gaya hai */
+    right: -100%;
     width: 90%;
     max-width: 380px;
     background: linear-gradient(135deg, rgba(31, 28, 44, 0.95), rgba(146, 141, 171, 0.95));
@@ -215,12 +214,12 @@ body {
     z-index: 9999;
     opacity: 0;
     visibility: hidden;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     pointer-events: none;
 }
 
 #vipEntranceOverlay.active {
-    transform: translate(-50%, 0) scale(1);
+    right: 5%;
     opacity: 1;
     visibility: visible;
 }
