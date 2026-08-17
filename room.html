@@ -198,45 +198,46 @@ body {
         #giftAnimationOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; display: flex; align-items: center; justify-content: center; z-index: 2000; overflow: hidden; background: rgba(0,0,0,0.85); }
         .flying-gift-box { display: flex; flex-direction: column; align-items: center; width: 100%; height: 100%; justify-content: center; }
         .flying-gift-box video { width: 100vw; height: 100vh; object-fit: contain; background: #000; }
-        /* VIP Entrance Grand Card */
+/* VIP Entrance Grand Card - Shifted to Top (Welcome Banner area) */
 #vipEntranceOverlay {
     position: fixed;
-    top: 20%;
+    bottom: 348px; /* 0.40 inch neeche adjust kiya gaya hai */
     left: 50%;
-    transform: translate(-50%, -50%) scale(0);
-    width: 85%;
-    max-width: 360px;
-    background: linear-gradient(135deg, #1f1c2c, #928dab);
+    transform: translate(-50%, 20px) scale(0.9);
+    width: 90%;
+    max-width: 380px;
+    background: linear-gradient(135deg, rgba(31, 28, 44, 0.95), rgba(146, 141, 171, 0.95));
     border: 2px solid #ffd700;
-    border-radius: 15px;
-    padding: 15px;
+    border-radius: 14px;
+    padding: 12px 15px;
     text-align: center;
-    box-shadow: 0 0 25px rgba(255, 215, 0, 0.6);
+    box-shadow: 0 -8px 25px rgba(255, 215, 0, 0.5);
     z-index: 9999;
     opacity: 0;
-    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    visibility: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     pointer-events: none;
 }
 
 #vipEntranceOverlay.active {
-    transform: translate(-50%, -50%) scale(1);
+    transform: translate(-50%, 0) scale(1);
     opacity: 1;
+    visibility: visible;
 }
-
-.vip-badge-title {
+      .vip-badge-title {
     color: #ffd700;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: bold;
     text-shadow: 0 0 8px #ff8c00;
-    margin-bottom: 5px;
+    margin-bottom: 3px;
+    letter-spacing: 0.5px;
 }
 
 .vip-user-name {
     color: #ffffff;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
 }
-
 /* Screen Flash Effect */
 .vip-flash-bg {
     position: fixed;
@@ -969,7 +970,6 @@ function sendGiftItem(item) {
         showVipRoomEntrance();
     }, 1000);
 });
-
     // VIP Entrance Animation Trigger
     function showVipRoomEntrance() {
         let vipLevel = localStorage.getItem('userVipLevel') || 25;
@@ -996,7 +996,6 @@ function sendGiftItem(item) {
             }
         }
     }
-
     // User Roles & Session Security Check
     function getAuthenticatedUser() {
         let sessionUser = sessionStorage.getItem('activeUserSession');
