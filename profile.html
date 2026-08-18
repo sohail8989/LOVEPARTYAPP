@@ -357,7 +357,179 @@
         </div>
     </div>
 </div>
+  
+<div id="greedyGameModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.92); z-index:10000; justify-content:center; align-items:center;">
+    <div style="background:linear-gradient(135deg, #1f0c24, #0b0614); border:2px solid #ffaa00; width:96%; max-width:460px; height:85vh; border-radius:18px; padding:12px; color:#fff; font-family:sans-serif; display:flex; flex-direction:column; box-shadow: 0 10px 30px rgba(255,170,0,0.4);">
+        
+        <!-- Header -->
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #442244; padding-bottom:6px; margin-bottom:8px;">
+            <h3 id="modalHeaderTitle" style="margin:0; color:#ffaa00; font-size:15px;">🎮 Lover Party Live Games Hub</h3>
+            <span onclick="document.getElementById('greedyGameModal').style.display='none'" style="cursor:pointer; font-size:18px; color:#ff4757; font-weight:bold;">✕</span>
+        </div>
 
+        <!-- 10 Real Games Selection Grid --
+        <div id="gamesHubGrid" style="overflow-y:auto; flex:1; padding-right:4px;">
+            <div style="font-size:11px; color:#ccc; margin-bottom:8px;">Select Real WebSocket Live Game:</div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+                
+                <!-- 1. Greedy Pro -->
+        <div        onclick="launchRealGame('Greedy Pro', '🎁')" style="background:#160926; border:1px solid #ffaa00; border-radius:10px; padding:8px; text-align:center; cursor:pointer;">
+                    <div style="font-size:24px;">🎁</div>
+                    <div style="font-weight:bold; font-size:12px; margin-top:2px;">Greedy Pro</div>
+                    <div style="font-size:9px; color:#00ff88;">Live WebSocket</div>
+                </div>
+
+                <!-- 2. Lucky Fruit -->
+                <div onclick="launchRealGame('Lucky Fruit', '🍒')" style="background:#160926; border:1px solid #ffaa00; border-radius:10px; padding:8px; text-align:center; cursor:pointer;">
+                    <div style="font-size:24px;">🍒</div>
+                    <div style="font-weight:bold; font-size:12px; margin-top:2px;">Lucky Fruit</div>
+                    <div style="font-size:9px; color:#00ff88;">Up to 45x</div>
+                </div>
+
+                <!-- 3. Rocket Crash -->
+                <div onclick="launchRealGame('Rocket Crash', '🚀')" style="background:#160926; border:1px solid #00d2ff; border-radius:10px; padding:8px; text-align:center; cursor:pointer;">
+                    <div style="font-size:24px;">🚀</div>
+                    <div style="font-weight:bold; font-size:12px; margin-top:2px;">Rocket Crash</div>
+                    <div style="font-size:9px; color:#00d2ff;">Curve Multiplier</div>
+                </div>
+
+                <!-- 4. Jackpot Chest -->
+                <div onclick="launchRealGame('Jackpot Chest', '💰')" style="background:#160926; border:1px solid #ffd700; border-radius:10px; padding:8px; text-align:center; cursor:pointer;">
+                    <div style="font-size:24px;">💰</div>
+                    <div style="font-weight:bold; font-size:12px; margin-top:2px;">Jackpot Chest</div>
+                    <div style="font-size:9px; color:#ffd700;">High Multiplier</div>
+                </div>
+
+                <!-- 5. Roulette -->
+                <div onclick="launchRealGame('Roulette', '🎡')" style="background:#160926; border:1px solid #ff4757; border-radius:10px; padding:8px; text-align:center; cursor:pointer;">
+                    <div style="font-size:24px;">🎡</div>
+                    <div style="font-weight:bold; font-size:12px; margin-top:2px;">Roulette</div>
+                    <div style="font-size:9px; color:#ff4757;">Live Wheel</div>
+                </div>
+
+                <!-- 6. Domino -->
+                <div onclick="launchRealGame('Domino', '🎲')" style="background:#160926; border:1px solid #a55eea; border-radius:10px; padding:8px; text-align:center; cursor:pointer;">
+                    <div style="font-size:24px;">🎲</div>
+                    <div style="font-weight:bold; font-size:12px; margin-top:2px;">Domino</div>
+                    <div style="font-size:9px; color:#a55eea;">Room Battle</div>
+                </div>
+
+                <!-- 7. Jackaroo -->
+                <div onclick="launchRealGame('Jackaroo', '🎯')" style="background:#160926; border:1px solid #2ed573; border-radius:10px; padding:8px; text-align:center; cursor:pointer;">
+                    <div style="font-size:24px;">🎯</div>
+                    <div style="font-weight:bold; font-size:12px; margin-top:2px;">Jackaroo</div>
+                    <div style="font-size:9px; color:#2ed573;">Board Game</div>
+                </div>
+
+                <!-- 8. Golden Fortune -->
+                <div onclick="launchRealGame('Golden Fortune', '👑')" style="background:#160926; border:1px solid #eccc68; border-radius:10px; padding:8px; text-align:center; cursor:pointer;">
+                    <div style="font-size:24px;">👑</div>
+                    <div style="font-weight:bold; font-size:12px; margin-top:2px;">Golden Fortune</div>
+                    <div style="font-size:9px; color:#eccc68;">Royal Slot</div>
+                </div>
+
+                <!-- 9. FoodBall King -->
+                <div onclick="launchRealGame('FoodBall King', '⚽')" style="background:#160926; border:1px solid #ffa502; border-radius:10px; padding:8px; text-align:center; cursor:pointer;">
+                    <div style="font-size:24px;">⚽</div>
+                    <div style="font-weight:bold; font-size:12px; margin-top:2px;">FoodBall King</div>
+                    <div style="font-size:9px; color:#ffa502;">Sports Action</div>
+                </div>
+
+                <!-- 10. UMO -->
+                <div onclick="launchRealGame('UMO', '🃏')" style="background:#160926; border:1px solid #ff6b81; border-radius:10px; padding:8px; text-align:center; cursor:pointer;">
+                    <div style="font-size:24px;">🃏</div>
+                    <div style="font-weight:bold; font-size:12px; margin-top:2px;">UMO Cards</div>
+                    <div style="font-size:9px; color:#ff6b81;">Multiplayer</div>
+                </div>
+
+            </div>
+        </div>
+            <div id="activeRealGameArena" style="display:none; flex-direction:column; width:100%; height:100%; background:linear-gradient(135deg, #1a0505, #0a0202); color:#fff; padding:10px; box-sizing:border-box; overflow-y:auto; font-family:sans-serif; position:relative;">
+                
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <button onclick="backToGameHubMenu()" style="background:none; border:none; color:#ffd700; font-weight:bold; font-size:14px; cursor:pointer;">← Back to Hub</button>
+                    <div id="activeGameTitleLabel" style="font-size:15px; font-weight:bold; color:#ffcc00; text-shadow:0 0 5px rgba(255,215,0,0.5);">🎰 Live Game</div>
+                    <div style="font-size:11px; color:#aaa;" id="activeRoundID">Round: #857</div>
+                </div>
+
+                <div style="background:linear-gradient(90deg, #500, #900, #500); border:1px solid #ffd700; border-radius:8px; padding:6px; text-align:center; margin-bottom:8px;">
+                    <div style="font-size:10px; color:#ffcc00; font-weight:bold; letter-spacing:1px;">JACKPOT POOL</div>
+                    <div style="font-size:18px; font-weight:900; color:#fff; text-shadow:0 0 10px #ff0;">26,644,498</div>
+                </div>
+
+                <div style="position:relative; background:rgba(0,0,0,0.6); border:2px solid #b8860b; border-radius:10px; padding:8px; display:grid; grid-template-columns: repeat(3, 1fr); gap:6px; margin-bottom:10px;">
+                    
+                    <div style="background:#2b0c0c; border:1px solid #d4af37; border-radius:6px; padding:6px; text-align:center;">
+                        <div style="font-size:18px;">🍊</div>
+                        <div style="font-size:9px; color:#ffd700; font-weight:bold;">5 times</div>
+                    </div>
+                    <div style="background:#2b0c0c; border:1px solid #d4af37; border-radius:6px; padding:6px; text-align:center;">
+                        <div style="font-size:18px;">🍋</div>
+                        <div style="font-size:9px; color:#ffd700; font-weight:bold;">5 times</div>
+                    </div>
+                    <div style="background:#2b0c0c; border:1px solid #d4af37; border-radius:6px; padding:6px; text-align:center;">
+                        <div style="font-size:18px;">🍇</div>
+                        <div style="font-size:9px; color:#ffd700; font-weight:bold;">5 times</div>
+                    </div>
+
+                    <div style="background:#2b0c0c; border:1px solid #d4af37; border-radius:6px; padding:6px; text-align:center;">
+                        <div style="font-size:18px;">🍒</div>
+                        <div style="font-size:9px; color:#ffd700; font-weight:bold;">5 times</div>
+                    </div>
+
+                    <div id="gameDisplayValue" style="background:radial-gradient(circle, #400, #100); border:3px solid #ff4757; border-radius:8px; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:4px; text-align:center;">
+                        <span style="font-size:8px; color:#ffcccb; font-weight:bold;">STATUS</span>
+                        <span id="activeMultiplier" style="font-size:18px; font-weight:bold; color:#ffd700;">1.00x</span>
+                    </div>
+
+                    <div style="background:#2b0c0c; border:1px solid #d4af37; border-radius:6px; padding:6px; text-align:center;">
+                        <div style="font-size:18px;">✨</div>
+                        <div style="font-size:9px; color:#ffd700; font-weight:bold;">Lucky</div>
+                    </div>
+
+                    <div style="background:#2b0c0c; border:1px solid #d4af37; border-radius:6px; padding:6px; text-align:center;">
+                        <div style="font-size:18px;">🍏</div>
+                        <div style="font-size:9px; color:#ffd700; font-weight:bold;">10 times</div>
+                    </div>
+                    <div style="background:#2b0c0c; border:1px solid #d4af37; border-radius:6px; padding:6px; text-align:center;">
+                        <div style="font-size:18px;">🍉</div>
+                        <div style="font-size:9px; color:#ffd700; font-weight:bold;">15 times</div>
+                    </div>
+                    <div style="background:#2b0c0c; border:1px solid #d4af37; border-radius:6px; padding:6px; text-align:center;">
+                        <div style="font-size:18px;">🍓</div>
+                        <div style="font-size:9px; color:#ffd700; font-weight:bold;">45 times</div>
+                    </div>
+                </div>
+
+                <div style="font-size:11px; color:#ccc; margin-bottom:4px;">Select Coin Bet Key:</div>
+                <div style="display:flex; justify-content:space-between; gap:5px; margin-bottom:8px;">
+                    <button onclick="setGameBet(1000)" style="flex:1; background:#333; border:1px solid #d4af37; border-radius:6px; padding:6px; color:#ffd700; font-weight:bold; font-size:11px; cursor:pointer;">🔑 1K</button>
+                    <button onclick="setGameBet(10000)" style="flex:1; background:#442200; border:2px solid #ffd700; border-radius:6px; padding:6px; color:#ffd700; font-weight:bold; font-size:11px; cursor:pointer;">🔑 10K</button>
+                    <button onclick="setGameBet(50000)" style="flex:1; background:#333; border:1px solid #d4af37; border-radius:6px; padding:6px; color:#ffd700; font-weight:bold; font-size:11px; cursor:pointer;">🔑 50K</button>
+                    <button onclick="setGameBet(100000)" style="flex:1; background:#333; border:1px solid #d4af37; border-radius:6px; padding:6px; color:#ffd700; font-weight:bold; font-size:11px; cursor:pointer;">🔑 100K</button>
+                </div>
+
+                <input type="number" id="realBetInput" value="1000" style="width:100%; padding:8px; margin-bottom:8px; background:#0e0717; color:#fff; border:1px solid #ffaa00; border-radius:6px; box-sizing:border-box; font-size:12px; text-align:center;">
+
+                <div style="display:flex; gap:10px; align-items:center; margin-bottom:8px;">
+                    <div style="background:#111; border:1px solid #444; border-radius:6px; padding:6px 10px; flex:1; text-align:center;">
+                        <div style="font-size:9px; color:#aaa;">Balance</div>
+                        <div style="font-size:12px; font-weight:bold; color:#ffd700;">🪙 675</div>
+                    </div>
+                    <button onclick="placeRealWebSocketBet()" style="flex:2; background:linear-gradient(90deg, #ff4500, #ff8c00); border:none; border-radius:6px; padding:10px; color:#fff; font-weight:bold; font-size:12px; cursor:pointer; box-shadow:0 0 10px rgba(255,69,0,0.5);">🔥 Place Bet & Join</button>
+                </div>
+
+                <div style="background:rgba(0,0,0,0.5); border-top:1px solid #444; padding:5px; border-radius:6px; display:flex; align-items:center; gap:5px; overflow-x:auto;">
+                    <span style="font-size:9px; color:#aaa; white-space:nowrap;">Results:</span>
+                    <div style="display:flex; gap:4px;">
+                        <span style="background:#222; border:1px solid #d4af37; padding:2px 6px; border-radius:4px; font-size:10px;">🍊</span>
+                        <span style="background:#222; border:1px solid #d4af37; padding:2px 6px; border-radius:4px; font-size:10px;">🍒</span>
+                        <span style="background:#222; border:1px solid #d4af37; padding:2px 6px; border-radius:4px; font-size:10px;">🍋</span>
+                        <span style="background:#222; border:1px solid #d4af37; padding:2px 6px; border-radius:4px; font-size:10px;">🍇</span>
+                        <span style="background:#222; border:1px solid #d4af37; padding:2px 6px; border-radius:4px; font-size:10px;">🍉</span>
+                    </div>
+                </div>
+            </div>
     <div class="header-bar">My Profile</div>
 
     <div class="profile-container">
@@ -577,20 +749,78 @@
     </script>
 
     <script>
-        function openFeature(featureName) {
-            if(featureName === 'CP') {
-                alert('CP (Couple Profile) feature selected. Requires 250,000 coins to bind!');
-            } else if(featureName === 'Games') {
-                alert('Launching Real Greedy Game...');
-            } else if(featureName === 'Wallet') {
-                openRechargeModal();
-            } else if(featureName === 'Withdrawal') {
-openWithdrawModal();
-            } else {
-                alert(`Opening ${featureName} dashboard...`);
-            }
+            function openFeature(featureName) {
+        if(featureName === 'CP') {
+            alert('CP (Couple Profile) feature selected. Requires 250,000 coins to bind!');
+        } else if(featureName === 'Games') {
+            openGreedyGame();
+        } else if(featureName === 'Wallet') {
+            openRechargeModal();
+        } else if(featureName === 'Withdrawal') {
+            openWithdrawModal();
+        } else {
+            alert(`Opening ${featureName} dashboard...`);
         }
+    }
+let activeWs = null;
 
+function openGreedyGame() {
+    document.getElementById('greedyGameModal').style.display = 'flex';
+    backToGameHubMenu();
+}
+
+function launchRealGame(gameName, emoji) {
+    document.getElementById('gamesHubGrid').style.display = 'none';
+    document.getElementById('activeRealGameArena').style.display = 'flex';
+    document.getElementById('activeGameTitleLabel').innerHTML = `${emoji} ${gameName} Live`;
+    // Connect to Node.js Termux WebSocket Server (Port 3000)
+    if (!activeWs || activeWs.readyState !== WebSocket.OPEN) {
+        activeWs = new WebSocket('ws://localhost:3000');
+
+        activeWs.onmessage = function(event) {
+            let data = JSON.parse(event.data);
+            let displayVal = document.getElementById('gameDisplayValue');
+            let multVal = document.getElementById('activeMultiplier');
+
+            if (!displayVal || !multVal) return;
+
+            if (data.status === 'waiting') {
+                displayVal.innerHTML = `<span style="color:#ffd700;">⏳ Next Round in ${data.countdown}s (ID: #${data.roundId})</span>`;
+                multVal.innerText = '1.00x';
+            } else if (data.status === 'running') {
+                displayVal.innerHTML = `<span style="color:#00ff88;">🚀 Live Round Active</span>`;
+                multVal.innerText = data.multiplier + 'x';
+            } else if (data.status === 'crashed') {
+                displayVal.innerHTML = `<span style="color:#ff4757;">💥 Round Ended at ${data.multiplier}x</span>`;
+                multVal.innerText = data.multiplier + 'x';
+            }
+        };
+    }
+}
+
+function backToGameHubMenu() {
+    document.getElementById('gamesHubGrid').style.display = 'block';
+    document.getElementById('activeRealGameArena').style.display = 'none';
+}
+
+function setGameBet(amount) {
+    document.getElementById('realBetInput').value = amount;
+}
+
+function placeRealWebSocketBet() {
+    let betAmount = parseInt(document.getElementById('realBetInput').value);
+    if (isNaN(betAmount) || betAmount <= 0) {
+        alert("Baraye meharbani valid coins amount enter karein!");
+        return;
+    }
+    
+    if (activeWs && activeWs.readyState === WebSocket.OPEN) {
+        activeWs.send(JSON.stringify({ action: "placeBet", amount: betAmount }));
+        alert(`✅ Bet of ${betAmount.toLocaleString()} Coins successfully placed on live round!`);
+    } else {
+        alert("❌ Server connection lost. Termux server check karein!");
+    }
+}
         function openVipModal() {
             document.getElementById('vipModal').style.display = 'flex';
         }
