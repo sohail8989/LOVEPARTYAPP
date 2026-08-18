@@ -7,38 +7,87 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background-color: #0d0b21; color: #ffffff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding-bottom: 70px; overflow-x: hidden; }
-        .top-tabs { display: flex; background: #151238; padding: 0 10px; border-bottom: 1px solid #2a265f; overflow-x: auto; white-space: nowrap; }
+        
+        /* Poppo Style Top Category Tabs - Left to Right Scrollable */
+        .top-tabs { display: flex; background: #151238; padding: 0 10px; border-bottom: 1px solid #2a265f; overflow-x: auto; white-space: nowrap; position: sticky; top: 0; z-index: 100; scroll-behavior: smooth; }
         .top-tabs::-webkit-scrollbar { display: none; }
-        .top-tab-item { padding: 12px 16px; font-size: 13px; color: #a09cb0; cursor: pointer; border-bottom: 2px solid transparent; }
+        .top-tab-item { padding: 14px 18px; font-size: 13px; color: #a09cb0; cursor: pointer; border-bottom: 2px solid transparent; transition: 0.3s; flex-shrink: 0; }
         .top-tab-item.active { color: #ff3366; border-bottom-color: #ff3366; font-weight: bold; }
+
         .section-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .section-header h3 { font-size: 14px; color: #a09cb0; }
-        .create-room-btn { background: linear-gradient(135deg, #ff3366, #ff6b8b); color: white; border: none; padding: 6px 14px; border-radius: 15px; font-weight: bold; font-size: 12px; cursor: pointer; }
+        .section-header h3 { font-size: 15px; color: #fff; font-weight: 600; }
+        .create-room-btn { background: linear-gradient(135deg, #ff3366, #ff6b8b); color: white; border: none; padding: 6px 14px; border-radius: 15px; font-weight: bold; font-size: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(255, 51, 102, 0.3); }
+
+        /* Professional Live Rooms Grid & Cards */
         .rooms-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 15px; }
-        .room-card { background: #1a1744; border-radius: 12px; overflow: hidden; cursor: pointer; border: 1px solid #2a265f; display: flex; flex-direction: column; justify-content: space-between; height: 150px; position: relative; }
-        .room-card-img { width: 100%; height: 75px; object-fit: cover; background: #25215c; }
-        .room-card-info { padding: 8px; display: flex; flex-direction: column; justify-content: space-between; flex: 1; }
-        .room-card h4 { font-size: 13px; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .room-tag { position: absolute; top: 6px; right: 6px; background: rgba(0, 0, 0, 0.6); color: #ff3366; font-size: 9px; padding: 2px 6px; border-radius: 6px; font-weight: bold; }
+        .room-card { background: #1a1744; border-radius: 12px; overflow: hidden; cursor: pointer; border: 1px solid #2a265f; display: flex; flex-direction: column; justify-content: space-between; height: 180px; position: relative; transition: transform 0.2s; }
+        .room-card:active { transform: scale(0.98); }
+        
+        .room-card-top { position: relative; width: 100%; height: 105px; }
+        .room-card-img { width: 100%; height: 100%; object-fit: cover; background: #25215c; }
+        
+        /* Badges on Card */
+        .room-tag { position: absolute; top: 6px; left: 6px; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); color: #fff; font-size: 9px; padding: 2px 6px; border-radius: 6px; display: flex; align-items: center; gap: 3px; }
+        .listener-badge { position: absolute; top: 6px; right: 6px; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); color: #ff3366; font-size: 9px; padding: 2px 6px; border-radius: 6px; font-weight: bold; display: flex; align-items: center; gap: 3px; }
+
+        /* Animated Talking Wave Overlay */
+        .wave-overlay { position: absolute; bottom: 6px; right: 6px; display: flex; align-items: flex-end; gap: 1.5px; height: 12px; background: rgba(0,0,0,0.5); padding: 2px 5px; border-radius: 4px; }
+        .wave-bar { width: 2px; background: #ff3366; animation: waveAnim 1s infinite ease-in-out; }
+        .wave-bar:nth-child(2) { animation-delay: 0.2s; }
+        .wave-bar:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes waveAnim { 0%, 100% { height: 3px; } 50% { height: 10px; } }
+
+        .room-card-info { padding: 8px 10px; display: flex; flex-direction: column; justify-content: space-between; flex: 1; }
+        .room-card h4 { font-size: 12px; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+        
+        .host-info { display: flex; align-items: center; gap: 5px; font-size: 10px; color: #a09cb0; }
+        .host-flag { font-size: 11px; }
+
+        /* Create Room Modal Styling */
         #create-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; }
         .modal-box { background: #151238; padding: 20px; border-radius: 15px; width: 85%; max-width: 320px; border: 1px solid #2a265f; }
-        .modal-box input, .modal-box select { width: 100%; padding: 10px; margin-bottom: 10px; background: #0d0b21; border: 1px solid #2a265f; border-radius: 8px; color: white; font-size: 13px; }
+        .modal-box input, .modal-box select { width: 100%; padding: 10px; margin-bottom: 10px; background: #0d0b21; border: 1px solid #2a265f; border-radius: 8px; color: white; font-size: 13px; outline: none; }
         .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
         .modal-actions button { padding: 7px 14px; border-radius: 6px; border: none; font-weight: bold; font-size: 12px; cursor: pointer; }
         .btn-cancel { background: #2a265f; color: white; }
         .btn-create { background: #ff3366; color: white; }
+
+        /* Bottom Navigation Bar */
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #151238; border-top: 1px solid #2a265f; display: flex; justify-content: space-around; padding: 8px 0; z-index: 500; }
-        .nav-item { text-align: center; color: #a09cb0; text-decoration: none; font-size: 10px; cursor: pointer; background: none; border: none; }
+        .nav-item { text-align: center; color: #a09cb0; text-decoration: none; font-size: 10px; cursor: pointer; background: none; border: none; flex: 1; transition: 0.2s; }
         .nav-item.active { color: #ff3366; }
-        .nav-item div { font-size: 16px; margin-bottom: 2px; }
+        .nav-item div { font-size: 18px; margin-bottom: 2px; }
     </style>
 </head>
 <body>
 
-    <div class="top-tabs">
-        <div class="top-tab-item">Following</div>
-        <div class="top-tab-item active">Explore</div>
-        <div class="top-tab-item">New</div>
+    <!-- Poppo Style Top Category Tabs (Left to Right Scrollable with 25 Countries/Categories) -->
+    <div class="top-tabs" id="categoryTabs">
+        <div class="top-tab-item active" data-category="Explore">Explore</div>
+        <div class="top-tab-item" data-category="Following">Following</div>
+        <div class="top-tab-item" data-category="Party">Party</div>
+        <div class="top-tab-item" data-category="Gaming">Gaming</div>
+        <div class="top-tab-item" data-category="PK">PK Battles</div>
+        <div class="top-tab-item" data-category="Nearby">Nearby</div>
+        <div class="top-tab-item" data-category="Pakistan">🇵🇰 Pakistan</div>
+        <div class="top-tab-item" data-category="Saudi Arabia">🇸🇦 Saudi Arabia</div>
+        <div class="top-tab-item" data-category="UAE">🇦🇪 UAE</div>
+        <div class="top-tab-item" data-category="India">🇮🇳 India</div>
+        <div class="top-tab-item" data-category="Bangladesh">🇧🇩 Bangladesh</div>
+        <div class="top-tab-item" data-category="Turkey">🇹🇷 Turkey</div>
+        <div class="top-tab-item" data-category="Iraq">🇮🇶 Iraq</div>
+        <div class="top-tab-item" data-category="Egypt">🇪🇬 Egypt</div>
+        <div class="top-tab-item" data-category="Morocco">🇲🇦 Morocco</div>
+        <div class="top-tab-item" data-category="Indonesia">🇮🇩 Indonesia</div>
+        <div class="top-tab-item" data-category="Malaysia">🇲🇾 Malaysia</div>
+        <div class="top-tab-item" data-category="Philippines">🇵🇭 Philippines</div>
+        <div class="top-tab-item" data-category="USA">🇺🇸 USA</div>
+        <div class="top-tab-item" data-category="UK">🇬🇧 UK</div>
+        <div class="top-tab-item" data-category="Germany">🇩🇪 Germany</div>
+        <div class="top-tab-item" data-category="France">🇫🇷 France</div>
+        <div class="top-tab-item" data-category="Brazil">🇧🇷 Brazil</div>
+        <div class="top-tab-item" data-category="Spain">🇪🇸 Spain</div>
+        <div class="top-tab-item" data-category="Italy">🇮🇹 Italy</div>
     </div>
 
     <div class="section-header">
@@ -58,6 +107,31 @@
             <input type="text" id="roomTitleInput" placeholder="Enter Room Title...">
             <label style="font-size: 11px; color: #a09cb0; display:block; margin-bottom:4px;">Room Banner Image:</label>
             <input type="file" id="roomImageInput" accept="image/*">
+            <label style="font-size: 11px; color: #a09cb0; display:block; margin-bottom:4px;">Category / Country:</label>
+            <select id="roomCategorySelect" style="width:100%; padding:10px; margin-bottom:10px; background:#0d0b21; border:1px solid #2a265f; border-radius:8px; color:white; font-size:13px;">
+                <option value="Party">Party</option>
+                <option value="Gaming">Gaming</option>
+                <option value="PK">PK Battles</option>
+                <option value="Pakistan">🇵🇰 Pakistan</option>
+                <option value="Saudi Arabia">🇸🇦 Saudi Arabia</option>
+                <option value="UAE">🇦🇪 UAE</option>
+                <option value="India">🇮🇳 India</option>
+                <option value="Bangladesh">🇧🇩 Bangladesh</option>
+                <option value="Turkey">🇹🇷 Turkey</option>
+                <option value="Iraq">🇮🇶 Iraq</option>
+                <option value="Egypt">🇪🇬 Egypt</option>
+                <option value="Morocco">🇲🇦 Morocco</option>
+                <option value="Indonesia">🇮🇩 Indonesia</option>
+                <option value="Malaysia">🇲🇾 Malaysia</option>
+                <option value="Philippines">🇵🇭 Philippines</option>
+                <option value="USA">🇺🇸 USA</option>
+                <option value="UK">🇬🇧 UK</option>
+                <option value="Germany">🇩🇪 Germany</option>
+                <option value="France">🇫🇷 France</option>
+                <option value="Brazil">🇧🇷 Brazil</option>
+                <option value="Spain">🇪🇸 Spain</option>
+                <option value="Italy">🇮🇹 Italy</option>
+            </select>
             <select id="roomCapacityInput">
                 <option value="4">4 Seats</option>
                 <option value="8">8 Seats</option>
@@ -70,12 +144,15 @@
         </div>
     </div>
 
+    <!-- Smooth Bottom Navigation Bar -->
     <div class="bottom-nav">
-        <button class="nav-item active" onclick="location.href='home.html'"><div>🏠</div>Home</button>
-        <button class="nav-item" onclick="location.href='profile.html'"><div>👤</div>Profile</button>
+        <button class="nav-item active" onclick="switchTab('home')"><div>🏠</div>Home</button>
+        <button class="nav-item" onclick="switchTab('messages')"><div>💬</div>Messages</button>
+        <button class="nav-item" onclick="switchTab('rankings')"><div>🏆</div>Rankings</button>
+        <button class="nav-item" onclick="switchTab('profile')"><div>👤</div>Profile</button>
     </div>
 
-    <!-- Firebase SDKs & Real-time Database Logic -->
+    <!-- Firebase SDKs & Real-time Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -94,30 +171,74 @@
         const db = getDatabase(app);
         const roomsRef = ref(db, 'rooms');
 
-        // Real-time listener to fetch and display active rooms from Firebase
+        let activeCategory = 'Explore';
+
+        // Category Tabs Switching Logic
+        document.querySelectorAll('.top-tab-item').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.top-tab-item').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                activeCategory = this.getAttribute('data-category');
+                fetchAndRenderRooms(window.cachedRoomsData);
+            });
+        });
+
+        window.cachedRoomsData = null;
+
+        // Real-time listener to fetch rooms from Firebase
         onValue(roomsRef, (snapshot) => {
             const data = snapshot.val();
+            window.cachedRoomsData = data;
+            fetchAndRenderRooms(data);
+        });
+
+        function fetchAndRenderRooms(data) {
             const roomsContainer = document.getElementById('roomsContainer');
             roomsContainer.innerHTML = '';
 
             if (data) {
+                let hasRooms = false;
                 Object.keys(data).forEach(key => {
                     const room = data[key];
+                    
+                    // Filter based on selected Category tab (Explore shows all rooms)
+                    if (activeCategory !== 'Explore' && room.category !== activeCategory) {
+                        return;
+                    }
+
+                    hasRooms = true;
+                    const listenerCount = room.listeners || Math.floor(Math.random() * 50) + 5; 
+
                     roomsContainer.innerHTML += `
                         <div class="room-card" onclick="window.location.href='room.html?roomId=${room.id}&name=${encodeURIComponent(room.name)}&seats=${room.seats}&image=${encodeURIComponent(room.image || '')}'">
-                            <span class="room-tag">${room.seats} Seats</span>
-                            <img src="${room.image || 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300'}" class="room-card-img" alt="Room Banner">
+                            <div class="room-card-top">
+                                <span class="room-tag">${room.category || 'Party'}</span>
+                                <span class="listener-badge">🔥 ${listenerCount}</span>
+                                <img src="${room.image || 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300'}" class="room-card-img" alt="Room Banner">
+                                <div class="wave-overlay">
+                                    <div class="wave-bar"></div>
+                                    <div class="wave-bar"></div>
+                                    <div class="wave-bar"></div>
+                                </div>
+                            </div>
                             <div class="room-card-info">
                                 <h4>${room.name}</h4>
-                                <p style="font-size:10px; color:#a09cb0;">Tap to Join Live</p>
+                                <div class="host-info">
+                                    <span class="host-flag">🌐</span> 
+                                    <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${room.category || 'Live Room'}</span>
+                                </div>
                             </div>
                         </div>
                     `;
                 });
+
+                if (!hasRooms) {
+                    roomsContainer.innerHTML = `<p style="color: #a09cb0; grid-column: span 2; text-align: center; padding: 20px;">No rooms found in ${activeCategory}.</p>`;
+                }
             } else {
                 roomsContainer.innerHTML = '<p style="color: #a09cb0; grid-column: span 2; text-align: center; padding: 20px;">No active rooms right now.</p>';
             }
-        });
+        }
 
         window.openModal = function() {
             document.getElementById('create-modal').style.display = 'flex';
@@ -130,6 +251,7 @@
         window.createRoom = function() {
             const title = document.getElementById('roomTitleInput').value.trim();
             const seats = document.getElementById('roomCapacityInput').value;
+            const category = document.getElementById('roomCategorySelect').value;
             const imageInput = document.getElementById('roomImageInput');
 
             if(!title) {
@@ -140,15 +262,17 @@
             if(imageInput.files && imageInput.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    saveRoomToFirebase(title, seats, e.target.result);
+                    saveRoomToFirebase(title, seats, category, e.target.result);
                 };
                 reader.readAsDataURL(imageInput.files[0]);
             } else {
-                saveRoomToFirebase(title, seats, 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300');
+                saveRoomToFirebase(title, seats, category, 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300');
             }
         }
 
-        function saveRoomToFirebase(title, seats, imageUrl) {
+        function saveRoomUserFirebase(title, seats, category, imageUrl) {}
+
+        function saveRoomToFirebase(title, seats, category, imageUrl) {
             const newRoomRef = push(roomsRef);
             const roomId = newRoomRef.key;
 
@@ -156,7 +280,9 @@
                 id: roomId,
                 name: title,
                 seats: parseInt(seats),
+                category: category,
                 image: imageUrl,
+                listeners: Math.floor(Math.random() * 20) + 1,
                 createdAt: Date.now()
             }).then(() => {
                 closeModal();
@@ -164,6 +290,17 @@
             }).catch((err) => {
                 alert("Error creating room: " + err.message);
             });
+        }
+
+        // Bottom Navigation Tab Switcher Logic
+        window.switchTab = function(tabName) {
+            if(tabName === 'home') {
+                location.href = 'home.html';
+            } else if(tabName === 'profile') {
+                location.href = 'profile.html';
+            } else {
+                alert(tabName.charAt(0).toUpperCase() + tabName.slice(1) + ' section is coming soon!');
+            }
         }
     </script>
 </body>
