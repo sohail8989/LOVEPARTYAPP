@@ -302,6 +302,24 @@
                 alert(tabName.charAt(0).toUpperCase() + tabName.slice(1) + ' section is coming soon!');
             }
         }
+      // Firebase Realtime Database listener for VIP entries or VIP gifts across the app
+onValue(ref(db, 'vip_entries'), (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+        // Yahan video player logic likhen jo room entry par video show karega
+        console.log("VIP Entry Detected:", data);
+        
+        // Example video/gift trigger logic for the room interface:
+        if (typeof playGiftEffect === 'function' && data.videoSrc) {
+            playGiftEffect({
+                name: data.giftName || "VIP Entrance Effect",
+                src: data.videoSrc,
+                price: data.price || 0
+            });
+        }
+    }
+});
+
     </script>
 </body>
 </html>

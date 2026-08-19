@@ -925,14 +925,27 @@ window.playVipPreview = function(level) {
         alert("❌ Pehle is VIP level ki video upload karein, phir play hogi!");
     }
 }
-
 window.setRoomEntry = function(level) {
     let videoData = localStorage.getItem(`vip_${level}_video_url`);
+    let userName = document.getElementById('userNameDisplay').innerText;
+    
     if (videoData) {
+        // LocalStorage mein save karein
         localStorage.setItem('activeRoomEntryVideo', videoData);
+        
+        // Firebase Realtime Database mein push karein taake room mein live trigger ho
+        if (typeof db !== 'undefined') {
+            db.ref('vip_entries').set({
+                userName: userName,
+                videoSrc: videoData,
+                level: level,
+                timestamp: Date.now()
+            });
+        }
+        
         alert(`✨ VIP ${level} ki Entry animation successfully live rooms ke liye set kar di gayi hai!`);
     } else {
-        alert("❌ Pehle video upload karein tabhi set hogi!");
+        alert("❌ Pehle is VIP level ki video upload karein!");
     }
 }
         

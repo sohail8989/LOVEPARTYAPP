@@ -1112,6 +1112,62 @@ document.querySelectorAll('.seat-circle').forEach((seatEl, index) => {
         }
     });
 });
+// Room load hotay hi ya Firebase par VIP entry detect honay par video play karein
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Check LocalStorage on Room Load
+    const localEntryVideo = localStorage.getItem('activeRoomEntryVideo');
+    if (localEntryVideo) {
+        triggerVipRoomEntry(localEntryVideo, "Muhammad Farhan");
+    }
+
+    // 2. Listen to Real-time Firebase VIP Entries
+    if (typeof db !== 'undefined') {
+        db.ref('vip_entries').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data && data.videoSrc) {
+                triggerVipRoomEntry(data.videoSrc, data.userName || "VIP Member");
+            }
+        });
+    }
+});
+
+function triggerVipRoomEntry(videoSrc, userName) {
+    const overlay = document.getElementById('vipEntranceOverlay');
+    const userText = document.getElementById('vipUserText');
+    
+    if (userText) {
+        userText.innerText = `${userName} entered the room with VIP Style!`;
+    }
+    
+    // Show VIP Entrance Banner overlay
+    overlay.classList.add('active');
+    
+    // Banner ke neeche video container create/update karna
+    let videoContainer = document.getElementById('vipEntryVideoBox');
+    if (!videoContainer) {
+        videoContainer = document.createElement('div');
+        videoContainer.id = 'vipEntryVideoBox';
+        videoContainer.style.marginTop = '8px';
+        overlay.appendChild(videoContainer);
+    }
+    
+    videoContainer.innerHTML = `
+        <video src="${videoSrc}" autoplay playsinline muted style="width: 100%; max-height: 160px; border-radius: 8px; object-fit: cover; background: #000; border: 1px solid #ffd700;"></video>
+    `;
+    
+    const videoElem = videoContainer.querySelector('video');
+    videoElem.play().catch(err => {
+        console.log("Auto-play prevented:", err);
+    });
+    
+    // Animation khatam honay par (misal ke tor par 6 seconds baad) overlay khud hide ho jaye
+    setTimeout(() => {
+        overlay.classList.remove('active');
+        if (videoContainer) {
+            videoContainer.innerHTML = '';
+        }
+    }, 6000);
+}
 
     </script>
 </body>
