@@ -1077,9 +1077,7 @@ function submitWithdrawal(targetPhone) {
                     `🏦 *Bank/Wallet:* ${encodeURIComponent(method)}%0A` +
                     `🔢 *Account No:* ${encodeURIComponent(accNum)}%0A` +
                     `👤 *Account Holder:* ${encodeURIComponent(accName)}%0A%0A` +
-                    `_Bhai withdrawal request process kar dein!_`;
-
-    window.open(`https://wa.me/${targetPhone}?text=${message}`, '_blank');
+                    `_Bhai withdrawal request process kar dein!_`;    window.open(`https://wa.me/${targetPhone}?text=${message}`, '_blank');
 }
               // Firebase se VIP videos fetch karne ke liye yeh code add karein
         const vipVideosRef = ref(db, 'vip_entry_videos');
@@ -1092,18 +1090,6 @@ function submitWithdrawal(targetPhone) {
             }
             if(typeof buildVipTable === 'function') buildVipTable();
         });
-document.addEventListener('DOMContentLoaded', () => {
-    for (let i = 1; i <= 25; i++) {
-        let savedVideoUrl = localStorage.getItem(`vip_${i}_video_url`);
-        if (savedVideoUrl) {
-            let vidElem = document.getElementById(`previewVid_${i}`);
-            if (vidElem) {
-                vidElem.src = savedVideoUrl;
-                vidElem.load();
-            }
-        }
-    }
-});
     </script>
 </body>
 </html>
