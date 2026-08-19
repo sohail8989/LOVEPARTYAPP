@@ -557,9 +557,8 @@
             </div>
             <div class="level-details-text" id="nextLevelInfo">Unlimited Gift Checking Enabled</div>
         </div>
-
         <!-- NEW: Coin Balance & Recharge Owner Button -->
-<div class="balance-card" onclick="openCoinStore()">
+        <div class="balance-card" onclick="openRechargeModal()">
             <div>
                 <div style="font-size: 16px;">💰 Coin Balance & Recharge</div>
                 <div id="ownerBalanceText" style="font-size: 12px; font-weight: bold; margin-top: 2px;">Balance: 5,000,000,000,000,000,000,000,000</div>
@@ -610,19 +609,18 @@
             </div>
         </div>
     </div>
-
-    <!-- VIP Modal List (VIP 1 to 25 with double rates) -->
-    <div class="modal" id="vipModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span>VIP Levels (1 to 25)</span>
-                <button class="close-btn" onclick="closeVipModal()">&times;</button>
-            </div>
-            <div id="vipListContainer">
-                <!-- Dynamically populated via JS -->
-            </div>
+<!-- VIP Modal List (VIP 1 to 25 with double rates & Video Entry Upload) -->
+<div class="modal" id="vipModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span>VIP Levels (1 to 25)</span>
+            <button class="close-btn" onclick="closeVipModal()">&times;</button>
+        </div>
+        <div id="vipListContainer">
+            <!-- Dynamically populated via JS -->
         </div>
     </div>
+</div>
 
     <!-- Recharge Modal for Owner Balance Control -->
     <div class="modal" id="rechargeModal">
@@ -797,7 +795,147 @@ function launchRealGame(gameName, emoji) {
         };
     }
 }
+      window.buildVipTable = function() {
+    let container = document.getElementById('vipListContainer');
+    if (!container) return;
 
+    let currentVip = calculateVipLevel(totalRechargedUSD);
+    let html = `
+        <div style="background:#1a1738; padding:12px; border-radius:10px; margin-bottom:15px; text-align:center; border:1px solid #ffd700;">
+            <div style="color:#fff; font-size:13px; font-weight:bold;">Current Status: <span style="color:#ffd700;">VIP ${currentVip} (👑 Owner)</span></div>
+            <div style="color:#aaa; font-size:11px; margin-top:4px;">Total Purchased: <b style="color:#00ff88;">$${totalRechargedUSD.toLocaleString()}</b></div>
+        </div>
+    `;
+
+    let reqPrice = 20;
+    for (let i = 1; i <= 25; i++) {
+        let savedVideo = localStorage.getItem(`vip_${i}_video_url`) || "";
+
+        html += `
+            <div class="vip-item" style="display:flex; flex-direction:column; padding:12px; border-bottom:1px solid #2b255c; gap:8px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div style="font-weight:bold; color:#ffd700; font-size:13px;">VIP ${i} 👑</div>
+                        <div style="font-size:10px; color:#00ff88;">Unlocked (Owner Access)</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="color: #ffd700; font-weight: bold; font-size:12px;">$${reqPrice.toLocaleString()}</div>
+                        <span style="background:#00b09b; color:#fff; padding:2px 6px; border-radius:4px; font-size:9px;">Active</span>
+                    </div>
+                </div>
+
+                <div style="background:#110f24; padding:10px; border-radius:8px; border:1px solid #3d357a; display:flex; flex-direction:column; gap:8px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:11px; color:#ff3366; font-weight:bold;">🎬 Room Entry Animation</span>
+                        
+                        <!-- Direct Touchable File Input Wrapper (Bypasses Mobile WebView Bug) -->
+                        <div style="position: relative; overflow: hidden; display: inline-block;">
+                            <input type="file" accept="video/*" style="position: absolute; left: 0; top: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer;" onchange="handleVipVideoUpload(event, ${i})">
+                            <button style="background:#ff3366; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-size:10px; font-weight:bold; pointer-events: none;">
+                                📤 Upload Entry Video
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Preview & Play Row -->
+                    <div style="display:flex; align-items:center; justify-content:space-between; background:#1c1738; padding:8px; border-radius:6px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <video id="previewVid_${i}" src="${savedVideo}" style="width:40px; height:40px; border-radius:4px; object-fit:cover; background:#000;" preload="metadata"></video>
+                            <button onclick="playVipPreview(${i})" style="background:#4eacc5; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-size:11px; cursor:pointer; font-weight:bold;">▶ Play</button>
+                        </div>
+                        <div>
+                            <button onclick="setRoomEntry(${i})" style="background:#00ff88; color:#000; border:none; padding:6px 12px; border-radius:4px; font-size:11px; cursor:pointer; font-weight:bold;">✨ Set Entry</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        reqPrice *= 2;
+    }
+
+    container.innerHTML = html;
+}
+
+window.handleVipVideoUpload = async function(event, level) {
+    try {
+        let userName = document.getElementById('userNameDisplay').innerText;
+        let userId = document.getElementById('userIdDisplay').innerText;
+        
+        // Strict Owner Security Check
+        if (userName !== "Muhammad Farhan" && !userId.includes("849201")) {
+            alert("❌ Access Denied: Sirf App Owner (Muhammad Farhan) hi VIP entry videos upload kar sakta hai!");
+            return;
+        }
+
+        const file = event.target.files[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('video/')) {
+            alert("❌ Sirf valid video file select karein!");
+            return;
+        }
+
+        alert("⏳ Bari video upload ho rahi hai, baraye meharbani intezaar karein...");
+
+        // Firebase Storage reference check
+        if (typeof window.storage === 'undefined' && typeof firebase === 'undefined') {
+            // Agar Firebase storage nahi hai toh Local Blob fallback use karein (chhoti video ke liye)
+            const videoBlobUrl = URL.createObjectURL(file);
+            localStorage.setItem(`vip_${level}_video_url`, videoBlobUrl);
+            let vidElement = document.getElementById(`previewVid_${level}`);
+            if (vidElement) { vidElement.src = videoBlobUrl; vidElement.load(); }
+            alert(`✅ VIP ${level} ki Video local storage par set ho gayi hai!`);
+            return;
+        }
+
+        // Firebase Storage mein upload karne ka tareeqa
+        const storageRef = firebase.storage().ref(`vip_entries/vip_${level}_${Date.now()}_${file.name}`);
+        const uploadTask = await storageRef.put(file);
+        const downloadURL = await uploadTask.ref.getDownloadURL();
+
+        // Download URL ko localStorage aur database mein save karna
+        localStorage.setItem(`vip_${level}_video_url`, downloadURL);
+
+        // UI update karna
+        let vidElement = document.getElementById(`previewVid_${level}`);
+        if (vidElement) {
+            vidElement.src = downloadURL;
+            vidElement.load();
+        }
+
+        alert(`✅ VIP ${level} ki 200MB+ entry video successfully Firebase Cloud par upload aur save ho gayi hai!`);
+
+    } catch (err) {
+        console.error("Upload Error:", err);
+        alert("❌ Video upload karne mein error aya: " + err.message);
+    }
+};
+
+window.playVipPreview = function(level) {
+    let vid = document.getElementById(`previewVid_${level}`);
+    if (vid && vid.getAttribute('src') && vid.getAttribute('src').trim() !== "") {
+        if (vid.paused) {
+            vid.play().catch(e => {
+                alert("Playback error: Video load hone mein masla hai ya format unsupported hai.");
+            });
+        } else {
+            vid.pause();
+        }
+    } else {
+        alert("❌ Pehle is VIP level ki video upload karein, phir play hogi!");
+    }
+}
+
+window.setRoomEntry = function(level) {
+    let videoData = localStorage.getItem(`vip_${level}_video_url`);
+    if (videoData) {
+        localStorage.setItem('activeRoomEntryVideo', videoData);
+        alert(`✨ VIP ${level} ki Entry animation successfully live rooms ke liye set kar di gayi hai!`);
+    } else {
+        alert("❌ Pehle video upload karein tabhi set hogi!");
+    }
+}
+        
 function backToGameHubMenu() {
     document.getElementById('gamesHubGrid').style.display = 'block';
     document.getElementById('activeRealGameArena').style.display = 'none';
@@ -873,14 +1011,12 @@ function calculateVipLevel(spent) {
     }
     return level;
 }
-
-
 function buildVipTable() {
     let container = document.getElementById('vipListContainer');
     if (!container) return;
 
     let currentVip = calculateVipLevel(totalRechargedUSD);
-    localStorage.setItem('userVipLevel', currentVip); // Active VIP save ho jayega
+    localStorage.setItem('userVipLevel', currentVip);
 
     let html = `
         <div style="background:#1a1738; padding:12px; border-radius:10px; margin-bottom:15px; text-align:center; border:1px solid #ffd700;">
@@ -893,23 +1029,46 @@ function buildVipTable() {
     for (let i = 1; i <= 25; i++) {
         let isUnlocked = totalRechargedUSD >= reqPrice;
         let diff = reqPrice - totalRechargedUSD;
+        let savedVideo = localStorage.getItem(`vip_${i}_video`) || "";
 
         html += `
-            <div class="vip-item" style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #2b255c;">
-                <div>
-                    <div style="font-weight:bold; color:${isUnlocked ? '#ffd700' : '#fff'}; font-size:13px;">
-                        VIP ${i} ${isUnlocked ? '👑' : ''}
+            <div class="vip-item" style="display:flex; flex-direction:column; padding:12px; border-bottom:1px solid #2b255c; gap:8px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div style="font-weight:bold; color:${isUnlocked ? '#ffd700' : '#fff'}; font-size:13px;">
+                            VIP ${i} ${isUnlocked ? '👑' : ''}
+                        </div>
+                        <div style="font-size:10px; color:#aaa;">
+                            ${isUnlocked ? '<span style="color:#00ff88;">Unlocked</span>' : `Recharge <b style="color:#ff3366;">$${diff.toFixed(2)}</b> more`}
+                        </div>
                     </div>
-                    <div style="font-size:10px; color:#aaa;">
-                        ${isUnlocked ? '<span style="color:#00ff88;">Unlocked</span>' : `Recharge <b style="color:#ff3366;">$${diff.toFixed(2)}</b> more`}
+                    <div style="text-align:right;">
+                        <div style="color: #ffd700; font-weight: bold; font-size:12px;">$${reqPrice.toLocaleString()}</div>
+                        <span style="background:${isUnlocked ? '#00b09b' : '#333'}; color:${isUnlocked ? '#fff' : '#888'}; padding:2px 6px; border-radius:4px; font-size:9px;">
+                            ${isUnlocked ? 'Active' : 'Locked 🔒'}
+                        </span>
                     </div>
                 </div>
-                <div style="text-align:right;">
-                    <div style="color: #ffd700; font-weight: bold; font-size:12px;">$${reqPrice.toLocaleString()}</div>
-                    <button style="background:${isUnlocked ? '#00b09b' : '#333'}; color:${isUnlocked ? '#fff' : '#888'}; border:none; padding:4px 8px; border-radius:6px; font-size:10px; cursor:default; margin-top:4px;">
-                        ${isUnlocked ? 'Active' : 'Locked 🔒'}
-                    </button>
-                </div>
+
+                ${isUnlocked ? `
+                    <div style="background:#110f24; padding:8px; border-radius:8px; border:1px solid #3d357a; display:flex; flex-direction:column; gap:6px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:10px; color:#ff3366; font-weight:bold;">🎬 Room Entry Animation</span>
+                            <input type="file" id="vipVideoFile_${i}" accept="video/*" style="display:none;" onchange="handleVipVideoUpload(event, ${i})">
+                            <button onclick="document.getElementById('vipVideoFile_${i}').click()" style="background:#ff3366; color:#fff; border:none; padding:4px 8px; border-radius:4px; font-size:10px; cursor:pointer; font-weight:bold;">
+                                📤 Upload Entry Video
+                            </button>
+                        </div>
+                        
+                        ${savedVideo ? `
+                            <div style="display:flex; align-items:center; justify-content:space-between; background:#1c1738; padding:4px 8px; border-radius:6px;">
+                                <video id="previewVid_${i}" src="${savedVideo}" style="width:35px; height:35px; border-radius:4px; object-fit:cover;" muted></video>
+                                <button onclick="playVipPreview(${i})" style="background:#4eacc5; color:#fff; border:none; padding:4px 8px; border-radius:4px; font-size:10px; cursor:pointer;">▶ Play</button>
+                                <button onclick="setRoomEntry(${i})" style="background:#00ff88; color:#000; border:none; padding:4px 8px; border-radius:4px; font-size:10px; cursor:pointer; font-weight:bold;">✨ Set Entry</button>
+                            </div>
+                        ` : '<div style="font-size:9px; color:#8c88b4; text-align:center;">No entry video uploaded yet.</div>'}
+                    </div>
+                ` : ''}
             </div>
         `;
         reqPrice *= 2;
@@ -918,30 +1077,52 @@ function buildVipTable() {
     container.innerHTML = html;
 }
 
-// Testing / Recharge Simulation Function (Seller / Payment Admin trigger karega)
-function processUserRecharge(dollarAmount) {
-    totalRechargedUSD += parseFloat(dollarAmount);
-    localStorage.setItem('totalRechargedUSD', totalRechargedUSD);
-    buildVipTable();
-    alert(`Recharge Successful! Added $${dollarAmount}. Total Spent: $${totalRechargedUSD}`);
-}
-      // Open Buy Coins Modal
-      function openCoinStore() {
-    document.getElementById('buyCoinsModal').style.display = 'flex';
-}
+// Video handling helper functions (Make sure these are present in your script tag as well)
+window.handleVipVideoUpload = function(event, level) {
+    let userName = document.getElementById('userNameDisplay').innerText;
+    if (userName !== "Muhammad Farhan") {
+        alert("❌ Error: Sirf App Owner (Muhammad Farhan) hi VIP entry videos upload kar sakta hai!");
+        return;
+    }
 
-function copyToClipboard(text, label) {
-    navigator.clipboard.writeText(text).then(() => {
-        alert("✅ " + label + " Copied: " + text);
-    }).catch(err => {
-        const input = document.createElement('input');
-        input.value = text;
-        document.body.appendChild(input);
-        input.select();
-        document.execCommand('copy');
-        document.body.removeChild(input);
-        alert("✅ " + label + " Copied: " + text);
-    });
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('video/')) {
+        alert("❌ Sirf valid video file select karein!");
+        return;
+    }
+
+    const videoElement = document.createElement('video');
+    videoElement.preload = 'metadata';
+    videoElement.onloadedmetadata = function() {
+        window.URL.revokeObjectURL(videoElement.src);
+        if (videoElement.duration > 61) {
+            alert(`❌ Video bohot lambi hai! Maximum 1 minute (60 seconds) tak ki video upload karein. Aapki video ${Math.round(videoElement.duration)} seconds ki hai.`);
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            let base64Video = e.target.result;
+            
+            localStorage.setItem(`vip_${level}_video_url`, base64Video);
+
+            if (typeof db !== 'undefined' && typeof ref !== 'undefined' && typeof set !== 'undefined') {
+                set(ref(db, `vip_entry_videos/${level}`), base64Video).then(() => {
+                    alert(`✅ VIP ${level} Entry Video successfully uploaded & synced to Firebase!`);
+                    buildVipTable();
+                }).catch((error) => {
+                    alert("❌ Firebase sync failed: " + error.message);
+                });
+            } else {
+                alert(`✅ VIP ${level} Entry Video successfully uploaded!`);
+                buildVipTable();
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+    videoElement.src = URL.createObjectURL(file);
 }
 
 function submitCoinOrderWhatsApp(targetPhone) {
@@ -1001,6 +1182,18 @@ function submitWithdrawal(targetPhone) {
 
     window.open(`https://wa.me/${targetPhone}?text=${message}`, '_blank');
 }
+              // Firebase se VIP videos fetch karne ke liye yeh code add karein
+        const vipVideosRef = ref(db, 'vip_entry_videos');
+        get(vipVideosRef).then((snapshot) => {
+            if(snapshot.exists()) {
+                let firestoreVideos = snapshot.val();
+                for(let lvl in firestoreVideos) {
+                    localStorage.setItem(`vip_${lvl}_video_url`, firestoreVideos[lvl]);
+                }
+            }
+            if(typeof buildVipTable === 'function') buildVipTable();
+        });
+
     </script>
 </body>
 </html>
