@@ -130,10 +130,10 @@
         <p id="error-message"></p>
     </div>
 
-    <!-- Firebase SDKs (Compat Version) -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <!-- Firebase SDKs (Compat Version 9.22.0) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <script>
         const firebaseConfig = {
@@ -152,36 +152,74 @@
         }
 
         const auth = firebase.auth();
-        const db = firebase.firestore();
+        const db = firebase.database();
 
         const emailInput = document.getElementById("email");
         const passwordInput = document.getElementById("password");
         const errorDisplay = document.getElementById("error-message");
 
-        // Helper function to create user profile in Firestore
-        async function createUserProfile(user) {
-            const userRef = db.collection("users").doc(user.uid);
-            const doc = await userRef.get();
-            
-            if (!doc.exists) {
-                await userRef.set({
-                    email: user.email || "",
-                    phone: user.phoneNumber || "",
-                    name: user.displayName || "Muhammad Farhan",
-                    coins: 35,
-                    points: 21462,
-                    customId: Math.floor(10000000 + Math.random() * 90000000),
-                    friends: 3,
-                    following: 3,
-                    followers: 236,
-                    visitors: 0,
-                    createdAt: new Date()
-                });
-            }
+        // Helper function to create user profile in Realtime Database
+        async function createUserProfile(user, customUsername = "Muhammad Farhan") {
+            const userRef = db.ref('users/' + user.uid);
+            userRef.once('value').then((snapshot) => {
+                if (!snapshot.exists()) {
+                    userRef.set({
+                        uid: user.uid,
+                        email: user.email || "",
+                        phone: user.phoneNumber || "",
+                        username: customUsername,
+                        coins: 35,
+                        points: 21462,
+                        customId: Math.floor(10000000 + Math.random() * 90000000),
+                        friends: 3,
+                        following: 3,
+                        followers: 236,
+                        visitors: 0,
+                        createdAt: new Date().toISOString()
+                    });
+                }
+            });
         }
 
-        // Email Login
-        document.getElementById("login-btn").onclick = async function() {
+        // 1. Register User Function
+        function registerUser(email, password, username) {
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    createUserProfile(user, username || "Muhammad Farhan");
+                    alert("Account Successfully Created!");
+                    window.location.href = "home.html";
+                })
+                .catch((error) => {
+                    console.error("Signup Error: ", error.message);
+                    errorDisplay.textContent = error.message;
+                });
+        }
+
+        // 2. Login User Function
+        function loginUser(email, password) {
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    db.ref('users/' + user.uid).once('value').then((snapshot) => {
+                        const userData = snapshot.val();
+                        if(userData) {
+                            alert("Welcome back, " + userData.username);
+                            window.location.href = "home.html";
+                        } else {
+                            createUserProfile(user);
+                            window.location.href = "home.html";
+                        }
+                    });
+                })
+                .catch((error) => {
+                    console.error("Login Error: ", error.message);
+                    errorDisplay.textContent = error.message;
+                });
+        }
+
+        // Email Login Event
+        document.getElementById("login-btn").onclick = function() {
             const email = emailInput.value.trim();
             const password = passwordInput.value.trim();
             if (!email || !password) {
@@ -189,17 +227,11 @@
                 return;
             }
             errorDisplay.textContent = "Logging in...";
-            try {
-                const res = await auth.signInWithEmailAndPassword(email, password);
-                await createUserProfile(res.user);
-                window.location.href = "home.html";
-            } catch (error) {
-                errorDisplay.textContent = error.message;
-            }
+            loginUser(email, password);
         };
 
-        // Email Signup
-        document.getElementById("signup-btn").onclick = async function() {
+        // Email Signup Event
+        document.getElementById("signup-btn").onclick = function() {
             const email = emailInput.value.trim();
             const password = passwordInput.value.trim();
             if (!email || !password) {
@@ -207,14 +239,7 @@
                 return;
             }
             errorDisplay.textContent = "Creating account...";
-            try {
-                const res = await auth.createUserWithEmailAndPassword(email, password);
-                await createUserProfile(res.user);
-                alert("Account created successfully!");
-                window.location.href = "home.html";
-            } catch (error) {
-                errorDisplay.textContent = error.message;
-            }
+            registerUser(email, password);
         };
 
         // Google Sign-In using Redirect Method
@@ -235,7 +260,7 @@
         // Handle Google Redirect Result on Page Load
         auth.getRedirectResult().then(async function(result) {
             if (result.user) {
-                await createUserProfile(result.user);
+                await createUserProfile(result.user, result.user.displayName || "Muhammad Farhan");
                 window.location.href = "home.html";
             }
         }).catch(function(error) {
@@ -259,7 +284,6 @@
                 return;
             }
 
-            // Automatic Country Code Correction (e.g. 03... to +923...)
             if (phoneNumber.startsWith("0")) {
                 phoneNumber = "+92" + phoneNumber.substring(1);
             } else if (!phoneNumber.startsWith("+")) {
@@ -298,5 +322,6 @@
             });
         };
     </script>
+
 </body>
 </html>

@@ -855,62 +855,57 @@ function launchRealGame(gameName, emoji) {
 
     container.innerHTML = html;
 }
-
 window.handleVipVideoUpload = async function(event, level) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
     try {
-        let userName = document.getElementById('userNameDisplay').innerText;
-        let userId = document.getElementById('userIdDisplay').innerText;
+        // Direct file access taake koi element missing hone ka error na aaye
+        const inputElement = event.target;
+        const file = inputElement.files ? inputElement.files[0] : null;
         
-        // Strict Owner Security Check
-        if (userName !== "Muhammad Farhan" && !userId.includes("849201")) {
-            alert("❌ Access Denied: Sirf App Owner (Muhammad Farhan) hi VIP entry videos upload kar sakta hai!");
+        if (!file) {
+            alert("❌ Koi file select nahi hui!");
             return;
         }
-
-        const file = event.target.files[0];
-        if (!file) return;
 
         if (!file.type.startsWith('video/')) {
             alert("❌ Sirf valid video file select karein!");
             return;
         }
 
-        alert("⏳ Bari video upload ho rahi hai, baraye meharbani intezaar karein...");
+        // Local Blob URL banayein taake foran preview nazar aaye
+        const videoBlobUrl = URL.createObjectURL(file);
+        
+        // LocalStorage mein save karein
+        localStorage.setItem(`vip_${level}_video_url`, videoBlobUrl);
 
-        // Firebase Storage reference check
-        if (typeof window.storage === 'undefined' && typeof firebase === 'undefined') {
-            // Agar Firebase storage nahi hai toh Local Blob fallback use karein (chhoti video ke liye)
-            const videoBlobUrl = URL.createObjectURL(file);
-            localStorage.setItem(`vip_${level}_video_url`, videoBlobUrl);
-            let vidElement = document.getElementById(`previewVid_${level}`);
-            if (vidElement) { vidElement.src = videoBlobUrl; vidElement.load(); }
-            alert(`✅ VIP ${level} ki Video local storage par set ho gayi hai!`);
-            return;
-        }
-
-        // Firebase Storage mein upload karne ka tareeqa
-        const storageRef = firebase.storage().ref(`vip_entries/vip_${level}_${Date.now()}_${file.name}`);
-        const uploadTask = await storageRef.put(file);
-        const downloadURL = await uploadTask.ref.getDownloadURL();
-
-        // Download URL ko localStorage aur database mein save karna
-        localStorage.setItem(`vip_${level}_video_url`, downloadURL);
-
-        // UI update karna
+        // Sirf us specific level ke video element ko update karein
         let vidElement = document.getElementById(`previewVid_${level}`);
-        if (vidElement) {
-            vidElement.src = downloadURL;
-            vidElement.load();
+        if (vidElement) { 
+            vidElement.src = videoBlobUrl; 
+            vidElement.load(); 
         }
 
-        alert(`✅ VIP ${level} ki 200MB+ entry video successfully Firebase Cloud par upload aur save ho gayi hai!`);
+        // Firebase mein sync karein agar available ho
+        if (typeof db !== 'undefined') {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                let base64Video = e.target.result;
+                db.ref(`vip_entry_videos/${level}`).set(base64Video);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        alert(`✅ VIP ${level} ki entry video successfully set ho gayi hai!`);
 
     } catch (err) {
         console.error("Upload Error:", err);
         alert("❌ Video upload karne mein error aya: " + err.message);
     }
 };
-
 window.playVipPreview = function(level) {
     let vid = document.getElementById(`previewVid_${level}`);
     if (vid && vid.getAttribute('src') && vid.getAttribute('src').trim() !== "") {
